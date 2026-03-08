@@ -25,19 +25,16 @@
         .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
         .hidden { display: none !important; }
 
-        /* Logo */
         .logo-area { margin-bottom: 30px; }
         .logo-symbol { width: 60px; height: 60px; margin: 0 auto 10px; position: relative; }
         .symbol-hex { background: var(--accent); width: 100%; height: 100%; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
 
-        /* UI Elements */
         input, select, button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 16px; margin-bottom: 12px; }
         input { background: var(--card); color: white; border: 1px solid #334155; }
         button { background: var(--accent); color: #0f172a; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
         button:active { transform: scale(0.98); }
         .secondary-btn { background: #334155; color: white; }
 
-        /* Game UI */
         .prob-container { background: var(--card); border-radius: 20px; padding: 40px 20px; margin: 20px 0; position: relative; border: 2px solid #334155; }
         .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 0 0 20px 20px; }
         #probText { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
@@ -86,25 +83,22 @@
             <div style="font-size: 12px; color: var(--subtle); letter-spacing: 2px;">EXPLOSIONSGEFAHR</div>
             <div class="prob-bar" id="probFill"></div>
         </div>
-
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">
             <span id="triggerLabel">DRÜCKEN</span>
         </div>
-
         <div class="score-board" id="onlineScoreBoard"></div>
     </div>
 
     <script>
-        // --- FIREBASE KONFIGURATION ---
-        // Ersetze diese Daten mit deinen eigenen Firebase-Zugangsdaten!
+        // --- DEINE AKTUALISIERTE FIREBASE KONFIGURATION ---
         const firebaseConfig = {
-            apiKey: "DEIN_API_KEY",
-            authDomain: "DEIN_PROJEKT.firebaseapp.com",
-            databaseURL: "https://DEIN_PROJEKT-default-rtdb.firebaseio.com",
-            projectId: "DEIN_PROJEKT",
-            storageBucket: "DEIN_PROJEKT.appspot.com",
-            messagingSenderId: "DEINE_ID",
-            appId: "DEINE_APP_ID"
+            apiKey: "AIzaSyCrFeaJLo7LS6hHml8yu8Fh7Z4mklh38uw",
+            authDomain: "boundonline-538df.firebaseapp.com",
+            databaseURL: "https://boundonline-538df-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "boundonline-538df",
+            storageBucket: "boundonline-538df.firebasestorage.app",
+            messagingSenderId: "144308798711",
+            appId: "1:144308798711:web:ef6f0d619896e533f57ff2"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -114,19 +108,17 @@
         let isHost = false;
 
         // --- AUDIO SETUP ---
-        // Definiert die drei Audio-Dateien aus deinem GitHub-Ordner
         const explosionSounds = [
             new Audio('a1.mp3'),
             new Audio('a2.mp3'),
             new Audio('a3.mp3')
         ];
 
-        // Funktion zum Abspielen eines zufälligen Sounds
         function playRandomExplosion() {
             const randomIndex = Math.floor(Math.random() * explosionSounds.length);
             const sound = explosionSounds[randomIndex];
             sound.currentTime = 0; 
-            sound.play().catch(e => console.log("Audio-Fehler (Interaktion nötig oder Datei fehlt):", e));
+            sound.play().catch(e => console.log("Audio-Fehler:", e));
         }
 
         function changeTheme() {
@@ -217,12 +209,8 @@
         function handleAction() {
             db.ref('rooms/' + roomCode).once('value', s => {
                 let data = s.val();
-                
-                // Berechnung der Explosion
                 if(Math.random() * 100 < data.currentProb) {
-                    // --- EXPLOSION AUSGELÖST ---
-                    playRandomExplosion(); // Spielt einen der 3 Zufalls-Sounds ab
-                    
+                    playRandomExplosion();
                     const label = document.getElementById('triggerLabel');
                     label.innerText = "BOOM!";
                     label.style.color = "var(--danger)";
@@ -230,15 +218,11 @@
                         label.innerText = "DRÜCKEN";
                         label.style.color = "inherit";
                     }, 1500);
-                    
-                    data.currentProb = 2; // Wahrscheinlichkeit zurücksetzen
+                    data.currentProb = 2;
                 } else {
-                    // --- SICHERER KLICK ---
                     data.players[data.turnIndex].score += Math.floor(data.currentProb);
                     data.currentProb += 2; 
                 }
-
-                // Nächster Spieler
                 data.turnIndex = (data.turnIndex + 1) % data.players.length;
                 db.ref('rooms/' + roomCode).update(data);
             });
