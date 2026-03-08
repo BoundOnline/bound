@@ -26,18 +26,16 @@
         .container { 
             width: 100%; max-width: 400px; padding: 30px 20px; text-align: center; 
             background: var(--card); border-radius: 20px; border: 1px solid #334155;
-            position: relative;
+            position: relative; max-height: 90vh; overflow-y: auto;
         }
         .hidden { display: none !important; }
 
-        /* Settings Toggle */
         .settings-icon {
             position: absolute; top: 20px; right: 20px; cursor: pointer;
             width: 24px; height: 24px; fill: var(--subtle); transition: transform 0.3s;
         }
         .settings-icon:hover { transform: rotate(45deg); fill: var(--text); }
 
-        /* Settings Modal */
         #settingsOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100;
@@ -58,33 +56,30 @@
 
         .divider { font-size: 10px; color: var(--subtle); margin: 5px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Game UI */
-        .prob-container { 
-            background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; 
-            position: relative; border: 2px solid #334155;
+        /* Public Rooms List */
+        .public-rooms { margin-top: 20px; text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; }
+        .public-room-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px; border-bottom: 1px solid #334155; cursor: pointer;
         }
-        .prob-bar { 
-            position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; 
-            background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; 
-        }
-        #probText { font-size: 48px; font-weight: 900; }
+        .public-room-item:last-child { border: none; }
+        .public-room-item:hover { background: rgba(255,255,255,0.05); }
+
+        /* Toggle Switch */
+        .switch-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; color: var(--subtle); font-size: 0.9rem; }
         
-        .trigger-btn { 
-            height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--bg); 
-            background: var(--card); color: var(--text); font-size: 20px; font-weight: 800; 
-            margin: 30px auto; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none;
-        }
+        /* Prob Bar & Game UI */
+        .prob-container { background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; position: relative; border: 2px solid #334155; }
+        .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; }
+        #probText { font-size: 48px; font-weight: 900; }
+        .trigger-btn { height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--bg); background: var(--card); color: var(--text); font-size: 20px; font-weight: 800; margin: 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none; }
         .active-turn .trigger-btn { border-color: var(--accent); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3); }
 
         .score-board { background: #111827; border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; }
         .score-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; }
         .score-row.active { color: var(--accent); font-weight: bold; }
 
-        .version-tag {
-            position: fixed; bottom: 10px; width: 100%; text-align: center;
-            font-size: 10px; color: var(--subtle); opacity: 0.5; letter-spacing: 1px;
-        }
+        .version-tag { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; color: var(--subtle); opacity: 0.5; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -115,11 +110,25 @@
         <div class="divider">oder</div>
         <input type="text" id="roomCodeInput" placeholder="4-stelliger Code">
         <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
+
+        <div id="publicRoomsContainer" class="hidden">
+            <div class="divider">Öffentliche Räume</div>
+            <div id="publicList" class="public-rooms"></div>
+        </div>
     </div>
 
     <div class="container hidden" id="screen-lobby">
         <h2>Raum-Code</h2>
-        <h1 id="displayRoomCode" style="font-size: 50px; color: var(--accent); margin: 20px 0;">----</h1>
+        <h1 id="displayRoomCode" style="font-size: 50px; color: var(--accent); margin: 10px 0;">----</h1>
+        
+        <div id="hostSettings" class="hidden">
+            <div class="switch-container">
+                <span>Privat</span>
+                <input type="checkbox" id="publicToggle" onchange="updateVisibility()" style="width: auto; margin: 0;">
+                <span>Öffentlich</span>
+            </div>
+        </div>
+
         <div id="lobbyPlayerList" style="margin-bottom: 20px;"></div>
         <button id="startBtn" onclick="startOnlineGame()" style="display:none">SPIEL STARTEN</button>
     </div>
@@ -155,6 +164,29 @@
         let myName = ""; let roomCode = ""; let isHost = false;
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
+        // Listen for Public Rooms on Home Screen
+        db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
+            const rooms = s.val();
+            const list = document.getElementById('publicList');
+            const container = document.getElementById('publicRoomsContainer');
+            
+            if(rooms) {
+                container.classList.remove('hidden');
+                list.innerHTML = Object.keys(rooms).map(code => {
+                    const r = rooms[code];
+                    if(r.status !== 'lobby') return '';
+                    return `
+                        <div class="public-room-item" onclick="quickJoin('${code}')">
+                            <span>#${code} (${r.players[0].name})</span>
+                            <span style="color: var(--accent); font-size: 12px;">BEITRETEN</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
         function toggleSettings() { document.getElementById('settingsOverlay').classList.toggle('hidden'); }
         function changeTheme() { document.body.className = document.getElementById('themeSelect').value; }
 
@@ -163,13 +195,31 @@
             if(!myName) return alert("Name?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
-            db.ref('rooms/' + roomCode).set({ status: 'lobby', currentProb: 2, turnIndex: 0, players: [{ name: myName, score: 0 }] });
+            document.getElementById('hostSettings').classList.remove('hidden');
+            db.ref('rooms/' + roomCode).set({ 
+                status: 'lobby', 
+                visibility: 'private',
+                currentProb: 2, 
+                turnIndex: 0, 
+                players: [{ name: myName, score: 0 }] 
+            });
             listen();
+        }
+
+        function updateVisibility() {
+            const isPublic = document.getElementById('publicToggle').checked;
+            db.ref('rooms/' + roomCode).update({ visibility: isPublic ? 'public' : 'private' });
+        }
+
+        function quickJoin(code) {
+            document.getElementById('roomCodeInput').value = code;
+            joinRoom();
         }
 
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
+            if(!myName) return alert("Name?");
             db.ref('rooms/' + roomCode).once('value', s => {
                 if(!s.exists()) return alert("Code falsch!");
                 let p = s.val().players || [];
@@ -188,7 +238,11 @@
                 if(d.status === 'lobby') {
                     document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:10px">• ${p.name}</div>`).join('');
                     if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display='block';
-                } else if(d.status === 'playing') { updateUI(d); }
+                } else if(d.status === 'playing') { 
+                    // Setze Sichtbarkeit auf privat, wenn Spiel startet
+                    if(isHost && d.visibility === 'public') db.ref('rooms/' + roomCode).update({ visibility: 'private' });
+                    updateUI(d); 
+                }
             });
         }
 
