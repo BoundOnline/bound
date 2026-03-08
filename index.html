@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        /* --- 🎨 THEME DEFINITIONS --- */
         :root {
             --bg: #0f172a;
             --card: #1e293b;
@@ -21,112 +20,99 @@
         .crimson { --bg: #450a0a; --accent: #f87171; --btn-hover: #ef4444; }
         .emerald { --bg: #064e3b; --accent: #34d399; --btn-hover: #10b981; }
 
-        /* --- 🛠️ BASE STYLES --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: var(--bg); color: var(--text); transition: background 0.5s; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         
         .container { 
-            width: 100%; 
-            max-width: 400px; 
-            padding: 30px 20px; 
-            text-align: center; 
-            background: var(--card);
-            border-radius: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-            border: 1px solid #334155;
-            transition: transform 0.3s ease;
+            width: 100%; max-width: 400px; padding: 30px 20px; text-align: center; 
+            background: var(--card); border-radius: 20px; border: 1px solid #334155;
+            position: relative;
         }
         .hidden { display: none !important; }
 
-        /* --- 🏷️ LOGO & TITLES --- */
-        .logo-area { margin-bottom: 35px; }
-        .logo-img { max-width: 120px; height: auto; margin-bottom: 15px; border-radius: 12px; }
-        
-        h1 { font-size: 2.5rem; letter-spacing: -2px; font-weight: 800; color: var(--text); margin-bottom: 5px; }
-        .subtitle { color: var(--subtle); font-size: 0.9rem; letter-spacing: 1px; }
+        /* Settings Toggle */
+        .settings-icon {
+            position: absolute; top: 20px; right: 20px; cursor: pointer;
+            width: 24px; height: 24px; fill: var(--subtle); transition: transform 0.3s;
+        }
+        .settings-icon:hover { transform: rotate(45deg); fill: var(--text); }
 
-        /* --- 🧱 UI ELEMENTS --- */
+        /* Settings Modal */
+        #settingsOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100;
+        }
+
+        .logo-area { margin-bottom: 30px; }
+        .logo-img { max-width: 140px; height: auto; display: block; margin: 0 auto; }
+        .subtitle { color: var(--subtle); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
         input, select, button { 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 12px; 
-            border: none; 
-            font-size: 16px; 
-            margin-bottom: 15px; 
-            transition: all 0.2s;
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            font-size: 16px; margin-bottom: 12px; transition: all 0.2s;
         }
         
         input { background: #111827; color: white; border: 1px solid #334155; }
-        input::placeholder { color: #64748b; }
-        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; }
 
-        select { 
-            background: var(--card); color: white; border: 1px solid #334155; cursor: pointer;
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%2394a3b8' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 15px center; background-size: 20px;
-        }
+        .divider { font-size: 10px; color: var(--subtle); margin: 5px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
 
-        button { background: var(--accent); color: #0f172a; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        button:hover { background: var(--btn-hover); }
-        button:active { transform: scale(0.97); }
-
-        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; text-transform: none; font-weight: 600; }
-        .secondary-btn:hover { background: rgba(255,255,255,0.05); }
-
-        /* --- 🎮 GAME UI --- */
+        /* Game UI */
         .prob-container { 
-            background: #111827; border-radius: 20px; padding: 50px 20px; margin: 25px 0; 
-            position: relative; border: 2px solid #334155; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+            background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; 
+            position: relative; border: 2px solid #334155;
         }
         .prob-bar { 
-            position: absolute; bottom: 0; left: 0; width: 0%; height: 10px; background: var(--accent); 
-            transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 0 0 20px 20px; 
+            position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; 
+            background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; 
         }
-        #probText { font-size: 52px; font-weight: 900; letter-spacing: -2px; }
+        #probText { font-size: 48px; font-weight: 900; }
         
         .trigger-btn { 
-            height: 200px; width: 200px; border-radius: 50%; border: 10px solid var(--bg); 
-            background: var(--card); color: var(--text); font-size: 22px; font-weight: 800; 
-            margin: 40px auto; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none; transition: all 0.2s;
+            height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--bg); 
+            background: var(--card); color: var(--text); font-size: 20px; font-weight: 800; 
+            margin: 30px auto; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none;
         }
-        .active-turn .trigger-btn { border-color: var(--accent); box-shadow: 0 0 50px rgba(56, 189, 248, 0.4); }
-        .active-turn .trigger-btn:hover { background: var(--bg); }
+        .active-turn .trigger-btn { border-color: var(--accent); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3); }
 
-        .score-board { background: #111827; border-radius: 15px; padding: 20px; margin-top: 30px; text-align: left; border: 1px solid #334155; }
-        .score-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+        .score-board { background: #111827; border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; }
+        .score-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; }
+        .score-row.active { color: var(--accent); font-weight: bold; }
+
         .version-tag {
-    position: fixed;
-    bottom: 10px;
-    left: 0;
-    width: 100%;
-    font-size: 10px;
-    color: var(--subtle);
-    opacity: 0.4;
-    text-align: center;
-    pointer-events: none;
-    letter-spacing: 1px;
-}
+            position: fixed; bottom: 10px; width: 100%; text-align: center;
+            font-size: 10px; color: var(--subtle); opacity: 0.5; letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container" id="screen-home">
-        <div class="logo-area">
-            <img src="logobound.png" alt="BOUND Logo" class="logo-img">
-            <h1>BOUND</h1>
-            <p class="subtitle">SOCIAL ROULETTE</p>
+    <div id="settingsOverlay" class="hidden" onclick="toggleSettings()">
+        <div class="container" onclick="event.stopPropagation()">
+            <h3>Design wählen</h3><br>
+            <select id="themeSelect" onchange="changeTheme()">
+                <option value="">Standard (Blue)</option>
+                <option value="midnight">Midnight</option>
+                <option value="crimson">Crimson</option>
+                <option value="emerald">Emerald</option>
+            </select>
+            <button onclick="toggleSettings()">Schließen</button>
         </div>
+    </div>
+
+    <div class="container" id="screen-home">
+        <svg class="settings-icon" onclick="toggleSettings()" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        
+        <div class="logo-area">
+            <img src="logobound.png" alt="BOUND" class="logo-img">
+            <p class="subtitle">Social Roulette</p>
+        </div>
+
         <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
-        <select id="themeSelect" onchange="changeTheme()">
-            <option value="">Design: Standard</option>
-            <option value="midnight">Design: Midnight Blue</option>
-            <option value="crimson">Design: Crimson Red</option>
-            <option value="emerald">Design: Emerald Green</option>
-        </select>
         <button onclick="createRoom()">SPIEL ERSTELLEN</button>
-        <p style="margin: 10px 0; font-size: 12px; color: var(--subtle)">ODER</p>
+        <div class="divider">oder</div>
         <input type="text" id="roomCodeInput" placeholder="4-stelliger Code">
         <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
     </div>
@@ -136,25 +122,23 @@
         <h1 id="displayRoomCode" style="font-size: 50px; color: var(--accent); margin: 20px 0;">----</h1>
         <div id="lobbyPlayerList" style="margin-bottom: 20px;"></div>
         <button id="startBtn" onclick="startOnlineGame()" style="display:none">SPIEL STARTEN</button>
-        <p style="color: var(--subtle)">Warte auf Mitspieler...</p>
     </div>
 
     <div class="container hidden" id="screen-game">
         <div id="turnInfo" style="margin-bottom: 10px; font-weight: bold; color: var(--subtle)">-</div>
         <div class="prob-container">
             <div id="probText">2%</div>
-            <div style="font-size: 12px; color: var(--subtle); letter-spacing: 2px;">EXPLOSIONSGEFAHR</div>
             <div class="prob-bar" id="probFill"></div>
         </div>
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">
             <span id="triggerLabel">DRÜCKEN</span>
         </div>
         <div class="score-board" id="onlineScoreBoard"></div>
-        <div class="version-tag">Beta V1.2</div>
     </div>
 
+    <div class="version-tag">Beta V1.2</div>
+
     <script>
-        // --- FIREBASE KONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCrFeaJLo7LS6hHml8yu8Fh7Z4mklh38uw",
             authDomain: "boundonline-538df.firebaseapp.com",
@@ -168,49 +152,26 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myName = "";
-        let roomCode = "";
-        let isHost = false;
+        let myName = ""; let roomCode = ""; let isHost = false;
+        const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
-        // --- AUDIO SETUP ---
-        const explosionSounds = [
-            new Audio('a1.mp3'),
-            new Audio('a2.mp3'),
-            new Audio('a3.mp3')
-        ];
-
-        function playRandomExplosion() {
-            const randomIndex = Math.floor(Math.random() * explosionSounds.length);
-            const sound = explosionSounds[randomIndex];
-            sound.currentTime = 0; 
-            sound.play().catch(e => console.warn("Audio-Play blockiert:", e));
-        }
-
-        function changeTheme() {
-            const t = document.getElementById('themeSelect').value;
-            document.body.className = t;
-        }
+        function toggleSettings() { document.getElementById('settingsOverlay').classList.toggle('hidden'); }
+        function changeTheme() { document.body.className = document.getElementById('themeSelect').value; }
 
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
             if(!myName) return alert("Name?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
-            db.ref('rooms/' + roomCode).set({
-                status: 'lobby',
-                currentProb: 2,
-                turnIndex: 0,
-                players: [{ name: myName, score: 0 }]
-            });
+            db.ref('rooms/' + roomCode).set({ status: 'lobby', currentProb: 2, turnIndex: 0, players: [{ name: myName, score: 0 }] });
             listen();
         }
 
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
-            if(!myName || !roomCode) return alert("Daten?");
             db.ref('rooms/' + roomCode).once('value', s => {
-                if(!s.exists()) return alert("Raum nicht gefunden!");
+                if(!s.exists()) return alert("Code falsch!");
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
                 db.ref('rooms/' + roomCode).update({ players: p });
@@ -222,77 +183,45 @@
             document.getElementById('screen-home').classList.add('hidden');
             document.getElementById('screen-lobby').classList.remove('hidden');
             document.getElementById('displayRoomCode').innerText = roomCode;
-
             db.ref('rooms/' + roomCode).on('value', s => {
-                const data = s.val();
-                if(!data) return;
-                
-                if(data.status === 'lobby') {
-                    document.getElementById('lobbyPlayerList').innerHTML = data.players.map(p => `
-                        <div style="padding:10px; border-bottom:1px solid var(--subtle)">• ${p.name}</div>
-                    `).join('');
-                    if(isHost && data.players.length >= 2) document.getElementById('startBtn').style.display='block';
-                } else if(data.status === 'playing') {
-                    updateGameUI(data);
-                }
+                const d = s.val(); if(!d) return;
+                if(d.status === 'lobby') {
+                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:10px">• ${p.name}</div>`).join('');
+                    if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display='block';
+                } else if(d.status === 'playing') { updateUI(d); }
             });
         }
 
-        function startOnlineGame() {
-            db.ref('rooms/' + roomCode).update({ status: 'playing' });
-        }
+        function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing' }); }
 
-        function updateGameUI(data) {
+        function updateUI(d) {
             document.getElementById('screen-lobby').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
-
-            const cur = data.players[data.turnIndex];
-            const isMe = cur.name === myName;
-
-            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${cur.name} ist dran...`;
-            document.getElementById('probFill').style.width = data.currentProb + "%";
-            document.getElementById('probText').innerText = `${data.currentProb}%`;
-            
-            document.getElementById('onlineScoreBoard').innerHTML = data.players.map((p, i) => `
-                <div class="score-row ${i === data.turnIndex ? 'active' : ''}">
-                    <span>${p.name}</span><span>${p.score}</span>
-                </div>
+            const isMe = d.players[d.turnIndex].name === myName;
+            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${d.players[d.turnIndex].name} ist dran...`;
+            document.getElementById('probFill').style.width = d.currentProb + "%";
+            document.getElementById('probText').innerText = d.currentProb + "%";
+            document.getElementById('onlineScoreBoard').innerHTML = d.players.map((p, i) => `
+                <div class="score-row ${i === d.turnIndex ? 'active' : ''}"><span>${p.name}</span><span>${p.score}</span></div>
             `).join('');
-
-            const btn = document.getElementById('mainTrigger');
-            if(isMe) {
-                document.body.classList.add('active-turn');
-                btn.style.opacity = "1";
-                btn.style.pointerEvents = "auto";
-            } else {
-                document.body.classList.remove('active-turn');
-                btn.style.opacity = "0.3";
-                btn.style.pointerEvents = "none";
-            }
+            document.getElementById('mainTrigger').style.opacity = isMe ? "1" : "0.3";
+            document.getElementById('mainTrigger').style.pointerEvents = isMe ? "auto" : "none";
         }
 
         function handleAction() {
             db.ref('rooms/' + roomCode).once('value', s => {
-                let data = s.val();
-                if(Math.random() * 100 < data.currentProb) {
-                    playRandomExplosion();
-                    const label = document.getElementById('triggerLabel');
-                    label.innerText = "BOOM!";
-                    label.style.color = "var(--danger)";
-                    setTimeout(() => {
-                        label.innerText = "DRÜCKEN";
-                        label.style.color = "inherit";
-                    }, 1500);
-                    data.currentProb = 2;
+                let d = s.val();
+                if(Math.random() * 100 < d.currentProb) {
+                    explosionSounds[Math.floor(Math.random()*3)].play();
+                    d.currentProb = 2;
                 } else {
-                    data.players[data.turnIndex].score += Math.floor(data.currentProb);
-                    data.currentProb += 2; 
+                    d.players[d.turnIndex].score += Math.floor(d.currentProb);
+                    d.currentProb += 2;
                 }
-                data.turnIndex = (data.turnIndex + 1) % data.players.length;
-                db.ref('rooms/' + roomCode).update(data);
+                d.turnIndex = (d.turnIndex + 1) % d.players.length;
+                db.ref('rooms/' + roomCode).update(d);
             });
         }
     </script>
 </body>
 </html>
-
