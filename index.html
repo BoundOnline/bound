@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BOUND - Social Roulette</title>
+    <title>BOUND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -30,7 +30,13 @@
         }
         .hidden { display: none !important; }
 
-        /* Settings & UI Elements */
+        /* Warn-Banner für Inaktivität */
+        #cleanupWarning {
+            position: absolute; top: 0; left: 0; width: 100%; background: var(--danger);
+            color: white; padding: 10px; font-size: 12px; font-weight: bold;
+            border-radius: 20px 20px 0 0; z-index: 10; display: none;
+        }
+
         input, select, button { 
             width: 100%; padding: 16px; border-radius: 12px; border: none; 
             font-size: 16px; margin-bottom: 12px; transition: all 0.2s;
@@ -40,35 +46,28 @@
         .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; }
         .divider { font-size: 10px; color: var(--subtle); margin: 5px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Modern Toggle Switch */
+        /* Toggle Switch */
         .status-label { font-size: 12px; font-weight: bold; margin-bottom: 8px; display: block; text-transform: uppercase; }
         .toggle-container {
             display: flex; background: #111827; border-radius: 50px; padding: 4px;
             margin: 10px 0 20px; border: 1px solid #334155; position: relative;
         }
-        .toggle-option {
-            flex: 1; padding: 10px; cursor: pointer; z-index: 2; transition: color 0.3s;
-            font-size: 14px; font-weight: bold; color: var(--subtle);
-        }
+        .toggle-option { flex: 1; padding: 10px; cursor: pointer; z-index: 2; font-size: 14px; font-weight: bold; color: var(--subtle); transition: color 0.3s; }
         .toggle-option.active { color: #0f172a; }
         .toggle-slider {
             position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px);
-            background: var(--accent); border-radius: 50px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
+            background: var(--accent); border-radius: 50px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;
         }
         .is-public .toggle-slider { transform: translateX(100%); }
 
-        /* Public Rooms List */
         .public-rooms { margin-top: 15px; text-align: left; }
         .public-room-item { 
             background: #111827; padding: 15px; border-radius: 15px; margin-bottom: 10px;
-            border: 1px solid #334155; cursor: pointer; transition: transform 0.1s;
+            border: 1px solid #334155; cursor: pointer;
         }
-        .public-room-item:active { transform: scale(0.98); }
         .room-title { font-size: 18px; font-weight: 800; color: var(--accent); display: block; margin-bottom: 4px; }
         .room-meta { font-size: 12px; color: var(--subtle); }
 
-        /* Game UI */
         .prob-container { background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; position: relative; border: 2px solid #334155; }
         .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; }
         #probText { font-size: 48px; font-weight: 900; }
@@ -81,8 +80,7 @@
 
     <div class="container" id="screen-home">
         <div class="logo-area">
-            <img src="logo2bound.png" alt="BOUND" class="logo-img" style="max-width: 140px;">
-            <p class="subtitle">Social Roulette</p>
+            <img src="logo2bound.png" alt="BOUND" class="logo-img" style="max-width: 140px; margin-bottom: 20px;">
         </div>
 
         <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
@@ -98,12 +96,12 @@
     </div>
 
     <div class="container hidden" id="screen-lobby">
+        <div id="cleanupWarning">Lobby inaktiv! <span onclick="refreshInactivity()" style="text-decoration: underline; cursor: pointer; margin-left: 10px;">VERLÄNGERN</span></div>
         <h2 id="lobbyTitleDisplay" style="margin-bottom: 5px;">Lobby</h2>
         <h1 id="displayRoomCode" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;">----</h1>
         
         <div id="hostSettings" class="hidden">
             <input type="text" id="roomNameInput" placeholder="Name der Gruppe (optional)" oninput="updateRoomName()">
-            
             <span class="status-label">Sichtbarkeit</span>
             <div class="toggle-container" id="visibilityToggle" onclick="toggleVisibility()">
                 <div class="toggle-slider"></div>
@@ -143,6 +141,7 @@
         const db = firebase.database();
 
         let myName = ""; let roomCode = ""; let isHost = false;
+        let inactivityInterval;
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
         // Public Rooms Listener
@@ -151,20 +150,37 @@
             const list = document.getElementById('publicList');
             const container = document.getElementById('publicRoomsContainer');
             if(!rooms) { container.classList.add('hidden'); return; }
-            
             container.classList.remove('hidden');
             list.innerHTML = Object.keys(rooms).map(code => {
                 const r = rooms[code];
                 if(r.status !== 'lobby') return '';
-                const displayName = r.roomName || "Unbenannte Gruppe";
                 return `
                     <div class="public-room-item" onclick="quickJoin('${code}')">
-                        <span class="room-title">${displayName}</span>
+                        <span class="room-title">${r.roomName || "Unbenannte Gruppe"}</span>
                         <span class="room-meta">Host: ${r.players[0].name} • Code: #${code}</span>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
         });
+
+        function refreshInactivity() {
+            if(!roomCode) return;
+            db.ref('rooms/' + roomCode).update({ lastActive: Date.now() });
+        }
+
+        function checkInactivity(data) {
+            if(!data.lastActive) return;
+            const diff = (Date.now() - data.lastActive) / 1000;
+            const warningEl = document.getElementById('cleanupWarning');
+            
+            if(diff > 180) { // 3 Minuten
+                db.ref('rooms/' + roomCode).remove();
+                location.reload();
+            } else if(diff > 150) { // Zeige Warnung nach 2.5 Minuten
+                if(isHost) warningEl.style.display = 'block';
+            } else {
+                warningEl.style.display = 'none';
+            }
+        }
 
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
@@ -174,7 +190,8 @@
             document.getElementById('hostSettings').classList.remove('hidden');
             db.ref('rooms/' + roomCode).set({ 
                 status: 'lobby', visibility: 'private', roomName: '',
-                currentProb: 2, turnIndex: 0, players: [{ name: myName, score: 0 }] 
+                lastActive: Date.now(), currentProb: 2, turnIndex: 0, 
+                players: [{ name: myName, score: 0 }] 
             });
             listen();
         }
@@ -183,13 +200,13 @@
             if(!isHost) return;
             db.ref('rooms/' + roomCode + '/visibility').once('value', s => {
                 const newVal = s.val() === 'public' ? 'private' : 'public';
-                db.ref('rooms/' + roomCode).update({ visibility: newVal });
+                db.ref('rooms/' + roomCode).update({ visibility: newVal, lastActive: Date.now() });
             });
         }
 
         function updateRoomName() {
             const name = document.getElementById('roomNameInput').value;
-            db.ref('rooms/' + roomCode).update({ roomName: name });
+            db.ref('rooms/' + roomCode).update({ roomName: name, lastActive: Date.now() });
         }
 
         function quickJoin(code) {
@@ -205,7 +222,7 @@
                 if(!s.exists()) return alert("Raum nicht gefunden!");
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
-                db.ref('rooms/' + roomCode).update({ players: p });
+                db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() });
                 listen();
             });
         }
@@ -216,9 +233,11 @@
             document.getElementById('displayRoomCode').innerText = "#" + roomCode;
             
             db.ref('rooms/' + roomCode).on('value', s => {
-                const d = s.val(); if(!d) return;
+                const d = s.val(); 
+                if(!d) { location.reload(); return; }
                 
-                // Update UI based on Visibility Status
+                checkInactivity(d);
+
                 const toggle = document.getElementById('visibilityToggle');
                 const optPrivate = document.getElementById('opt-private');
                 const optPublic = document.getElementById('opt-public');
@@ -237,13 +256,12 @@
                     document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.05)">• ${p.name}</div>`).join('');
                     if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display='block';
                 } else {
-                    if(isHost && d.visibility === 'public') db.ref('rooms/' + roomCode).update({ visibility: 'private' });
                     updateUI(d);
                 }
             });
         }
 
-        function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing' }); }
+        function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing', lastActive: Date.now() }); }
 
         function updateUI(d) {
             document.getElementById('screen-lobby').classList.add('hidden');
@@ -270,6 +288,7 @@
                     d.currentProb += 2;
                 }
                 d.turnIndex = (d.turnIndex + 1) % d.players.length;
+                d.lastActive = Date.now();
                 db.ref('rooms/' + roomCode).update(d);
             });
         }
