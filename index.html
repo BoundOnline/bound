@@ -26,34 +26,32 @@
         }
         .hidden { display: none !important; }
 
-        /* NEUES LAYOUT HOME SCREEN */
+        /* Layout Home Screen */
         .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .logo-img { max-width: 120px; }
-        
         .main-input-group { margin-bottom: 25px; }
-        
         .split-layout { display: flex; gap: 20px; text-align: left; }
         .split-column { flex: 1; display: flex; flex-direction: column; }
         .column-divider { width: 1px; background: #334155; margin: 0 5px; }
 
-        /* Admin & UI */
+        /* Admin Styles */
         .icon-btn { background: none; border: none; color: var(--subtle); cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.2s; }
         .icon-btn:hover { opacity: 1; color: var(--accent); }
-
         #adminModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
+        .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 95%; max-width: 400px; border: 1px solid var(--accent); max-height: 90vh; overflow-y: auto; }
+        .admin-stats { background: #111827; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left; font-size: 13px; border: 1px solid #334155; }
+        .stat-line { display: flex; justify-content: space-between; margin-bottom: 5px; color: var(--subtle); }
+        .stat-val { color: var(--accent); font-weight: bold; }
 
-        /* Buttons & Inputs */
+        /* UI Elements */
         input, button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; margin-bottom: 10px; transition: all 0.2s; }
         input { background: #111827; color: white; border: 1px solid #334155; }
         button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; }
         .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; }
         .danger-btn { background: var(--danger); color: white; }
 
-        /* Scrollbereich für Öffentliche Lobbys */
         .public-rooms-scroll { max-height: 180px; overflow-y: auto; margin-top: 10px; padding-right: 5px; }
         .public-room-item { background: #111827; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #334155; cursor: pointer; font-size: 13px; }
-        .public-room-item:hover { border-color: var(--accent); }
 
         /* Game UI */
         .prob-container { background: #111827; border-radius: 20px; padding: 30px 10px; margin: 20px 0; position: relative; border: 2px solid #334155; }
@@ -62,24 +60,37 @@
         .trigger-btn { height: 160px; width: 160px; border-radius: 50%; border: 6px solid var(--bg); background: var(--card); color: var(--text); font-size: 18px; font-weight: 800; margin: 20px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
 
         .version-tag { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; color: var(--subtle); opacity: 0.5; }
-        #broadcastOverlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0f172a; padding: 12px 20px; border-radius: 50px; font-weight: bold; z-index: 2000; }
+        #broadcastOverlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0f172a; padding: 12px 20px; border-radius: 50px; font-weight: bold; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
     <div id="adminModal" class="hidden">
         <div class="admin-box">
-            <h3 style="margin-bottom: 15px; color: var(--accent)">Admin Panel</h3>
+            <h3 style="margin-bottom: 15px; color: var(--accent)">Admin Control Center</h3>
+            
             <div id="adminAuth">
-                <input type="password" id="adminPass" placeholder="Passwort">
-                <button onclick="checkAdmin()">LOGIN</button>
+                <input type="password" id="adminPass" placeholder="Admin Passwort">
+                <button onclick="checkAdmin()">VERIFIZIEREN</button>
                 <button class="secondary-btn" onclick="closeAdmin()">ZURÜCK</button>
             </div>
+
             <div id="adminControls" class="hidden">
+                <div class="admin-stats">
+                    <div class="stat-line">Aktive Räume: <span class="stat-val" id="statRooms">0</span></div>
+                    <div class="stat-line">Spieler Online: <span class="stat-val" id="statPlayers">0</span></div>
+                    <div class="stat-line">Heißester Raum: <span class="stat-val" id="statHotRoom">Keiner</span></div>
+                </div>
+
+                <button style="background: #f59e0b; color: #000;" onclick="triggerGlobalChaos()">🔥 CHAOS SOUND (ALLE)</button>
+                
+                <div style="margin: 15px 0; height: 1px; background: #334155;"></div>
+                
                 <input type="text" id="broadcastMsg" placeholder="Nachricht an alle...">
-                <button onclick="sendBroadcast()">BROADCAST</button>
-                <button class="danger-btn" onclick="clearAllRooms()">ALLE LÖSCHEN</button>
-                <button class="secondary-btn" onclick="closeAdmin()">SCHLIESSEN</button>
+                <button onclick="sendBroadcast()">BROADCAST SENDEN</button>
+                
+                <button class="danger-btn" onclick="clearAllRooms()">SERVER CLEANUP (ALLE LÖSCHEN)</button>
+                <button class="secondary-btn" onclick="closeAdmin()">PANEL SCHLIESSEN</button>
             </div>
         </div>
     </div>
@@ -100,15 +111,12 @@
             <div class="split-column">
                 <h4 style="font-size: 11px; color: var(--subtle); margin-bottom: 10px; text-transform: uppercase;">Erstellen</h4>
                 <button onclick="createRoom()" style="font-size: 13px;">SPIEL ERSTELLEN</button>
-                
                 <div id="publicRoomsContainer" class="hidden">
                     <h4 style="font-size: 11px; color: var(--subtle); margin-top: 15px; text-transform: uppercase;">Öffentlich</h4>
                     <div id="publicList" class="public-rooms-scroll"></div>
                 </div>
             </div>
-
             <div class="column-divider"></div>
-
             <div class="split-column">
                 <h4 style="font-size: 11px; color: var(--subtle); margin-bottom: 10px; text-transform: uppercase;">Beitreten</h4>
                 <input type="text" id="roomCodeInput" placeholder="Code" maxlength="4" style="text-align: center;">
@@ -119,16 +127,14 @@
 
     <div class="container hidden" id="screen-lobby">
         <div id="cleanupWarning" style="background:var(--danger); padding:10px; border-radius:10px; margin-bottom:10px; font-size:12px; display:none;">
-            Inaktiv! <span onclick="refreshInactivity()" style="text-decoration:underline; cursor:pointer">VERLÄNGERN</span>
+            Lobby inaktiv! <span onclick="refreshInactivity()" style="text-decoration:underline; cursor:pointer">VERLÄNGERN</span>
         </div>
         <h2 style="font-size: 16px;">Raum-Code</h2>
         <h1 id="displayRoomCode" style="font-size: 45px; color: var(--accent); margin-bottom: 15px;">----</h1>
-        
         <div id="hostSettings" class="hidden">
             <input type="text" id="roomNameInput" placeholder="Gruppenname (Optional)" oninput="updateRoomName()">
             <button class="secondary-btn" id="visBtn" onclick="toggleVisibility()" style="font-size: 12px; margin-bottom: 20px;">SICHTBARKEIT: PRIVAT</button>
         </div>
-
         <div id="lobbyPlayerList" style="text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 5px;"></div>
         <button id="startBtn" onclick="startOnlineGame()" style="display:none; margin-top: 20px;">SPIEL STARTEN</button>
     </div>
@@ -161,19 +167,36 @@
         let myName = ""; 
         let roomCode = sessionStorage.getItem('activeRoom') || ""; 
         let isHost = sessionStorage.getItem('isHost') === 'true';
+        let isAdminActive = false;
+        
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
+        const chaosSound = new Audio('a1.mp3'); // Hier kannst du einen spezifischen Chaos-Sound setzen
 
-        db.ref('broadcast').on('value', s => {
-            const msg = s.val();
-            if(msg) {
+        // BROADCAST & CHAOS LISTENER
+        db.ref('globalEvents').on('value', s => {
+            const event = s.val();
+            if(!event) return;
+
+            // Globaler Sound (nur wenn man nicht selbst der Admin-Auslöser ist)
+            if(event.type === 'chaos' && !isAdminActive) {
+                chaosSound.play();
+                // Optional: Kurzer visueller Effekt
+                document.body.style.background = "#450a0a";
+                setTimeout(() => { document.body.style.background = var(--bg); }, 500);
+            }
+
+            // Broadcast Nachricht
+            if(event.type === 'broadcast') {
                 const el = document.getElementById('broadcastOverlay');
-                el.innerText = msg; el.classList.remove('hidden');
+                el.innerText = event.msg; el.classList.remove('hidden');
                 setTimeout(() => el.classList.add('hidden'), 5000);
             }
         });
 
+        // RE-JOIN LOGIC
         if(roomCode) { window.onload = () => { myName = "Spieler"; listen(); }; }
 
+        // PUBLIC ROOMS LISTENER
         db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
             const rooms = s.val();
             const container = document.getElementById('publicRoomsContainer');
@@ -184,33 +207,64 @@
                 if(r.status !== 'lobby') return '';
                 return `<div class="public-room-item" onclick="quickJoin('${code}')">
                     <strong>${r.roomName || "Gruppe"}</strong><br>
-                    <small>Host: ${r.players[0].name}</small>
+                    <small>Host: ${r.players[0].name} (#${code})</small>
                 </div>`;
             }).join('');
         });
 
+        // ADMIN FUNCTIONS
         function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
         function closeAdmin() { 
             document.getElementById('adminModal').classList.add('hidden');
-            document.getElementById('adminAuth').classList.remove('hidden');
-            document.getElementById('adminControls').classList.add('hidden');
-            document.getElementById('adminPass').value = "";
+            isAdminActive = false;
         }
+
         function checkAdmin() {
             if(document.getElementById('adminPass').value === "135369") {
                 document.getElementById('adminAuth').classList.add('hidden');
                 document.getElementById('adminControls').classList.remove('hidden');
-            } else { alert("Falsch!"); }
+                isAdminActive = true;
+                startAdminMonitor();
+            } else { alert("Zugriff verweigert!"); }
         }
-        function sendBroadcast() {
-            const msg = document.getElementById('broadcastMsg').value;
-            if(msg) db.ref('broadcast').set(msg).then(() => {
-                document.getElementById('broadcastMsg').value = "";
-                setTimeout(() => db.ref('broadcast').set(null), 1000);
+
+        function startAdminMonitor() {
+            db.ref('rooms').on('value', s => {
+                const rooms = s.val() || {};
+                const roomKeys = Object.keys(rooms);
+                let totalPlayers = 0;
+                let hotRoom = { code: "-", prob: 0 };
+
+                roomKeys.forEach(key => {
+                    const r = rooms[key];
+                    totalPlayers += (r.players ? r.players.length : 0);
+                    if(r.currentProb > hotRoom.prob) {
+                        hotRoom = { code: key, prob: r.currentProb };
+                    }
+                });
+
+                document.getElementById('statRooms').innerText = roomKeys.length;
+                document.getElementById('statPlayers').innerText = totalPlayers;
+                document.getElementById('statHotRoom').innerText = hotRoom.code !== "-" ? `#${hotRoom.code} (${Math.floor(hotRoom.prob)}%)` : "Keiner";
             });
         }
-        function clearAllRooms() { if(confirm("Alle Räume löschen?")) db.ref('rooms').remove(); }
 
+        function triggerGlobalChaos() {
+            db.ref('globalEvents').set({ type: 'chaos', timestamp: Date.now() });
+            setTimeout(() => db.ref('globalEvents').set(null), 500);
+        }
+
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcastMsg').value;
+            if(!msg) return;
+            db.ref('globalEvents').set({ type: 'broadcast', msg: msg, timestamp: Date.now() });
+            document.getElementById('broadcastMsg').value = "";
+            setTimeout(() => db.ref('globalEvents').set(null), 1000);
+        }
+
+        function clearAllRooms() { if(confirm("Wirklich das gesamte System zurücksetzen?")) db.ref('rooms').remove(); }
+
+        // CORE GAME FUNCTIONS (Identisch zu deiner Basis)
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
             if(!myName) return alert("Wie heißt du?");
