@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -41,7 +40,7 @@
 
         /* --- 🏷️ LOGO & TITLES --- */
         .logo-area { margin-bottom: 35px; }
-        .logo-img { max-width: 80px; height: auto; margin-bottom: 15px; } /* Dein neues Logo */
+        .logo-img { max-width: 120px; height: auto; margin-bottom: 15px; border-radius: 12px; }
         
         h1 { font-size: 2.5rem; letter-spacing: -2px; font-weight: 800; color: var(--text); margin-bottom: 5px; }
         .subtitle { color: var(--subtle); font-size: 0.9rem; letter-spacing: 1px; }
@@ -54,116 +53,53 @@
             border: none; 
             font-size: 16px; 
             margin-bottom: 15px; 
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         
-        input { 
-            background: #111827; 
-            color: white; 
-            border: 1px solid #334155; 
-            font-weight: 400;
-        }
+        input { background: #111827; color: white; border: 1px solid #334155; }
         input::placeholder { color: #64748b; }
         input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 
         select { 
-            background: var(--card); 
-            color: white; 
-            border: 1px solid #334155; 
-            cursor: pointer;
-            appearance: none; /* Deaktiviert das Standard-Dropdown */
-            -webkit-appearance: none;
+            background: var(--card); color: white; border: 1px solid #334155; cursor: pointer;
+            appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%2394a3b8' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 20px;
+            background-repeat: no-repeat; background-position: right 15px center; background-size: 20px;
         }
 
-        button { 
-            background: var(--accent); 
-            color: #0f172a; 
-            font-weight: 700; 
-            cursor: pointer; 
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
+        button { background: var(--accent); color: #0f172a; font-weight: 700; cursor: pointer; text-transform: uppercase; }
         button:hover { background: var(--btn-hover); }
         button:active { transform: scale(0.97); }
 
-        .secondary-btn { 
-            background: transparent; 
-            color: var(--text); 
-            border: 1px solid #334155;
-            text-transform: none;
-            font-weight: 600;
-        }
+        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; text-transform: none; font-weight: 600; }
         .secondary-btn:hover { background: rgba(255,255,255,0.05); }
 
         /* --- 🎮 GAME UI --- */
         .prob-container { 
-            background: #111827; 
-            border-radius: 20px; 
-            padding: 50px 20px; 
-            margin: 25px 0; 
-            position: relative; 
-            border: 2px solid #334155;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+            background: #111827; border-radius: 20px; padding: 50px 20px; margin: 25px 0; 
+            position: relative; border: 2px solid #334155; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
         }
         .prob-bar { 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            width: 0%; 
-            height: 10px; 
-            background: var(--accent); 
-            transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
-            border-radius: 0 0 20px 20px; 
+            position: absolute; bottom: 0; left: 0; width: 0%; height: 10px; background: var(--accent); 
+            transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 0 0 20px 20px; 
         }
         #probText { font-size: 52px; font-weight: 900; letter-spacing: -2px; }
         
         .trigger-btn { 
-            height: 200px; 
-            width: 200px; 
-            border-radius: 50%; 
-            border: 10px solid var(--bg); 
-            background: var(--card); 
-            color: var(--text); 
-            font-size: 22px; 
-            font-weight: 800; 
-            margin: 40px auto; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4); 
-            cursor: pointer; 
-            user-select: none; 
-            transition: all 0.2s;
+            height: 200px; width: 200px; border-radius: 50%; border: 10px solid var(--bg); 
+            background: var(--card); color: var(--text); font-size: 22px; font-weight: 800; 
+            margin: 40px auto; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none; transition: all 0.2s;
         }
-        .active-turn .trigger-btn { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 50px rgba(56, 189, 248, 0.4); 
-        }
+        .active-turn .trigger-btn { border-color: var(--accent); box-shadow: 0 0 50px rgba(56, 189, 248, 0.4); }
         .active-turn .trigger-btn:hover { background: var(--bg); }
 
-        .score-board { 
-            background: #111827; 
-            border-radius: 15px; 
-            padding: 20px; 
-            margin-top: 30px; 
-            text-align: left;
-            border: 1px solid #334155;
-        }
-        .score-row { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 10px 0; 
-            border-bottom: 1px solid #334155; 
-            font-size: 0.95rem;
-        }
+        .score-board { background: #111827; border-radius: 15px; padding: 20px; margin-top: 30px; text-align: left; border: 1px solid #334155; }
+        .score-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
         .score-row.active { color: var(--accent); font-weight: bold; }
     </style>
 </head>
-<body class="">
+<body>
 
     <div class="container" id="screen-home">
         <div class="logo-area">
@@ -177,27 +113,6 @@
             <option value="midnight">Design: Midnight Blue</option>
             <option value="crimson">Design: Crimson Red</option>
             <option value="emerald">Design: Emerald Green</option>
-        </select>
-        <button onclick="createRoom()">SPIEL ERSTELLEN</button>
-        <p style="margin: 10px 0; font-size: 12px; color: var(--subtle)">oder</p>
-        <input type="text" id="roomCodeInput" placeholder="4-stelliger Code">
-        <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
-    </div>
-</head>
-<body class="">
-
-    <div class="container" id="screen-home">
-        <div class="logo-area">
-            <div class="logo-symbol"><div class="symbol-hex"></div></div>
-            <h1>BOUND</h1>
-            <p style="color: var(--subtle)">Social Roulette</p>
-        </div>
-        <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
-        <select id="themeSelect" onchange="changeTheme()">
-            <option value="">Default Theme</option>
-            <option value="midnight">Midnight Blue</option>
-            <option value="crimson">Crimson Red</option>
-            <option value="emerald">Emerald Green</option>
         </select>
         <button onclick="createRoom()">SPIEL ERSTELLEN</button>
         <p style="margin: 10px 0; font-size: 12px; color: var(--subtle)">ODER</p>
@@ -227,7 +142,7 @@
     </div>
 
     <script>
-        // --- DEINE FIREBASE KONFIGURATION ---
+        // --- FIREBASE KONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCrFeaJLo7LS6hHml8yu8Fh7Z4mklh38uw",
             authDomain: "boundonline-538df.firebaseapp.com",
@@ -238,7 +153,6 @@
             appId: "1:144308798711:web:ef6f0d619896e533f57ff2"
         };
 
-        // Initialisierung mit expliziter Datenbank-Verknüpfung
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -369,4 +283,3 @@
     </script>
 </body>
 </html>
-
