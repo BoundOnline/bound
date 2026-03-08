@@ -8,106 +8,143 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
-            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8;
-            --danger: #ef4444; --text: #f8fafc; --subtle: #94a3b8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --subtle: #64748b;
+            --border: #334155;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         body { 
             background: var(--bg); color: var(--text); 
             display: flex; flex-direction: column; justify-content: center; 
             align-items: center; min-height: 100vh; overflow-x: hidden; 
         }
         
+        /* Layout */
         .container { 
-            width: 90%; max-width: 500px; padding: 25px; text-align: center; 
-            background: var(--card); border-radius: 24px; border: 1px solid #334155;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            width: 90%; max-width: 450px; padding: 30px; text-align: center; 
+            background: var(--card); border-radius: 28px; border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         .hidden { display: none !important; }
 
-        input, button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; margin-bottom: 10px; }
-        input { background: #111827; color: white; border: 1px solid #334155; }
-        button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .secondary-btn { background: #334155; color: white; }
+        /* Typography & Elements */
+        h2 { letter-spacing: 3px; font-weight: 900; color: var(--text); margin-bottom: 20px; }
+        .label { font-size: 11px; color: var(--subtle); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 
-        .split-layout { display: flex; gap: 15px; text-align: left; margin-top: 10px; }
-        .split-column { flex: 1; }
-        .column-divider { width: 1px; background: #334155; }
-        .column-label { font-size: 10px; color: var(--subtle); text-transform: uppercase; margin-bottom: 5px; }
-
-        #publicRoomsContainer { width: 90%; max-width: 500px; margin-top: 20px; }
-        .public-title { font-size: 22px; font-weight: 800; color: var(--danger); text-align: left; margin-bottom: 10px; }
-        .public-room-item { background: var(--card); padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; cursor: pointer; display: flex; justify-content: space-between; }
-
-        .prob-container { background: #111827; border-radius: 20px; padding: 30px 10px; margin: 20px 0; position: relative; overflow: hidden; }
-        .prob-bar { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); transition: width 0.4s; }
-        #probText { font-size: 45px; font-weight: 900; }
+        input, button { width: 100%; padding: 15px; border-radius: 14px; border: none; font-size: 15px; transition: all 0.2s; }
+        input { background: #0f172a; color: white; border: 1px solid var(--border); margin-bottom: 12px; }
+        input:focus { border-color: var(--accent); outline: none; }
         
+        button { background: var(--accent); color: #0f172a; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        button:active { transform: scale(0.97); }
+        .secondary-btn { background: #334155; color: white; }
+        .outline-btn { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+        /* Home Split */
+        .home-grid { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 20px; align-items: start; margin-top: 20px; }
+        .divider { background: var(--border); width: 1px; height: 100%; }
+
+        /* Public Rooms (Clean) */
+        #publicRoomsContainer { width: 90%; max-width: 450px; margin-top: 25px; }
+        .public-item { 
+            background: rgba(30, 41, 59, 0.5); padding: 14px; border-radius: 16px; 
+            margin-bottom: 8px; border: 1px solid var(--border); cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .public-item:hover { border-color: var(--accent); background: var(--card); }
+
+        /* Game UI */
+        .prob-box { background: #0f172a; border-radius: 24px; padding: 40px 20px; margin: 25px 0; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .prob-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #probText { font-size: 56px; font-weight: 900; color: var(--text); }
+
         .trigger-btn { 
-            height: 160px; width: 160px; border-radius: 50%; border: 6px solid var(--bg); 
-            background: var(--card); color: var(--text); font-size: 18px; font-weight: 800; 
-            margin: 20px auto; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            height: 150px; width: 150px; border-radius: 50%; border: 8px solid var(--bg); 
+            background: var(--card); color: var(--text); font-size: 16px; font-weight: 800; 
+            margin: 20px auto; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .version-tag { position: fixed; bottom: 10px; font-size: 10px; color: var(--subtle); opacity: 0.5; }
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .version-tag { position: fixed; bottom: 15px; font-size: 10px; color: var(--subtle); }
     </style>
 </head>
 <body>
 
     <div class="container" id="screen-home">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="letter-spacing: 2px;">BOUND</h2>
-            <span onclick="openAdmin()" style="cursor:pointer; opacity:0.5">⚙️</span>
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <img src="logo2bound.png" alt="BOUND" style="max-width: 110px;">
+            <span onclick="openAdmin()" style="cursor:pointer; color: var(--subtle); font-size: 20px;">⚙️</span>
         </div>
         
-        <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
+        <div style="margin: 25px 0;">
+            <div class="label">Profil</div>
+            <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
+        </div>
 
-        <div class="split-layout">
-            <div class="split-column">
-                <div class="column-label">Erstellen</div>
-                <button onclick="createRoom()">SPIEL ERSTELLEN</button>
+        <div class="home-grid">
+            <div>
+                <div class="label">Hosten</div>
+                <button onclick="createRoom()">NEU</button>
             </div>
-            <div class="column-divider"></div>
-            <div class="split-column">
-                <div class="column-label">Beitreten</div>
-                <input type="text" id="roomCodeInput" placeholder="Code" maxlength="4" style="text-align: center;">
-                <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
+            <div class="divider"></div>
+            <div>
+                <div class="label">Beitreten</div>
+                <input type="text" id="roomCodeInput" placeholder="Code" maxlength="4" style="text-align: center; margin-bottom: 10px; padding: 10px;">
+                <button class="secondary-btn" onclick="joinRoom()">JOIN</button>
             </div>
         </div>
     </div>
 
     <div id="publicRoomsContainer" class="hidden">
-        <h2 class="public-title">öffentlich</h2>
+        <div class="label" style="text-align: left; margin-left: 10px;">Öffentliche Lobbies</div>
         <div id="publicList"></div>
     </div>
 
     <div class="container hidden" id="screen-lobby">
-        <h1 id="displayRoomCode" style="font-size: 50px; color: var(--accent);">----</h1>
+        <div class="label">Raum Code</div>
+        <h1 id="displayRoomCode" style="font-size: 60px; color: var(--accent); margin-bottom: 20px;">----</h1>
+        
         <div id="hostSettings" class="hidden">
-            <input type="text" id="roomNameInput" placeholder="Gruppenname" oninput="updateRoomName()" style="margin-top:15px">
-            <button class="secondary-btn" id="visBtn" onclick="toggleVisibility()">PRIVAT</button>
+            <input type="text" id="roomNameInput" placeholder="Gruppenname (Optional)" oninput="updateRoomName()">
+            <button class="outline-btn" id="visBtn" onclick="toggleVisibility()">Sichtbarkeit: PRIVAT</button>
         </div>
-        <div id="lobbyPlayerList" style="margin-top:20px; text-align:left; color: var(--subtle)"></div>
-        <button id="startBtn" onclick="startOnlineGame()" style="display:none; margin-top: 20px; background: #22c55e; color: white;">SPIEL STARTEN</button>
+        
+        <div id="lobbyPlayerList" style="margin: 25px 0; text-align: left;"></div>
+        <button id="startBtn" onclick="startOnlineGame()" style="display:none; background: #10b981; color: white;">STARTEN</button>
     </div>
 
     <div class="container hidden" id="screen-game">
-        <div id="turnInfo" style="font-weight:bold; margin-bottom: 10px;">Laden...</div>
-        <div class="prob-container">
+        <div id="turnInfo" class="label" style="font-size: 14px; color: var(--accent);">-</div>
+        <div class="prob-box">
             <div id="probText">2%</div>
-            <div class="prob-bar" id="probFill" style="width: 2%;"></div>
+            <div class="prob-bar" id="probFill"></div>
         </div>
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">DRÜCKEN</div>
-        <div id="onlineScoreBoard" style="margin-top: 15px; font-size: 14px;"></div>
+        <div id="onlineScoreBoard" style="margin-top: 20px;"></div>
     </div>
 
-    <div id="adminModal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; display:flex; align-items:center; justify-content:center;">
-        <div class="container" style="max-width:300px">
-            <input type="password" id="adminPass" placeholder="Admin Passwort">
-            <button onclick="checkAdmin()">LOGIN</button>
-            <button class="secondary-btn" onclick="closeAdmin()">X</button>
+    <div id="adminModal" class="modal-overlay hidden">
+        <div class="container" style="max-width: 350px;">
+            <h3 style="margin-bottom: 20px;">Admin Panel</h3>
+            <div id="adminAuth">
+                <input type="password" id="adminPass" placeholder="Passwort">
+                <button onclick="checkAdmin()">LOGIN</button>
+                <button class="outline-btn" style="margin-top:10px" onclick="closeAdmin()">ABBRECHEN</button>
+            </div>
+            <div id="adminControls" class="hidden">
+                <div style="background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; text-align: left;">
+                    <div>Server-Status: <span style="color:var(--accent)">Online</span></div>
+                    <div>Aktive Räume: <span id="statRooms" style="color:var(--accent)">0</span></div>
+                </div>
+                <button class="secondary-btn" onclick="triggerGlobalChaos()">🔥 CHAOS SOUND</button>
+                <button class="outline-btn" style="margin-top:10px; border-color: #ef4444; color: #ef4444;" onclick="clearAllRooms()">SERVER RESET</button>
+                <button class="outline-btn" style="margin-top:20px" onclick="closeAdmin()">SCHLIESSEN</button>
+            </div>
         </div>
     </div>
 
@@ -126,12 +163,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myName = ""; 
-        let roomCode = ""; 
-        let isHost = false;
+        let myName = ""; let roomCode = ""; let isHost = false;
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
-        // Public Rooms
+        // Public Rooms Listener
         db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
             const rooms = s.val();
             const container = document.getElementById('publicRoomsContainer');
@@ -140,16 +175,16 @@
             document.getElementById('publicList').innerHTML = Object.keys(rooms).map(code => {
                 const r = rooms[code];
                 if(r.status !== 'lobby') return '';
-                return `<div class="public-room-item" onclick="quickJoin('${code}')">
-                    <span>${r.roomName || 'Unbenannt'}</span>
-                    <span style="color:var(--accent)">#${code}</span>
+                return `<div class="public-item" onclick="quickJoin('${code}')">
+                    <span style="font-weight:600">${r.roomName || 'Offenes Spiel'}</span>
+                    <span style="color:var(--accent); font-size:12px">#${code}</span>
                 </div>`;
             }).join('');
         });
 
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
-            if(!myName) return alert("Gib einen Namen ein!");
+            if(!myName) return alert("Wie heißt du?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
             db.ref('rooms/' + roomCode).set({
@@ -161,11 +196,10 @@
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
-            if(!myName || !roomCode) return alert("Name & Code?");
+            if(!myName || !roomCode) return alert("Name & Code fehlen!");
             db.ref('rooms/' + roomCode).once('value', s => {
                 if(!s.exists()) return alert("Raum nicht gefunden!");
-                let d = s.val();
-                let p = d.players || [];
+                let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
                 db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() }).then(listen);
             });
@@ -181,7 +215,8 @@
             db.ref('rooms/' + roomCode).on('value', s => {
                 const d = s.val(); if(!d) return;
                 if(d.status === 'lobby') {
-                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div>• ${p.name}</div>`).join('');
+                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => 
+                        `<div style="padding:10px; border-bottom:1px solid var(--border)">• ${p.name}</div>`).join('');
                     if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display = 'block';
                 } else {
                     showGame(d);
@@ -192,29 +227,22 @@
         function showGame(d) {
             document.getElementById('screen-lobby').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
-            
-            const currentPlayer = d.players[d.turnIndex];
-            const isMe = currentPlayer.name === myName;
-
-            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${currentPlayer.name} ist dran...`;
+            const isMe = d.players[d.turnIndex].name === myName;
+            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${d.players[d.turnIndex].name} IST AM ZUG...`;
             document.getElementById('probText').innerText = Math.floor(d.currentProb) + "%";
             document.getElementById('probFill').style.width = d.currentProb + "%";
-            
             const btn = document.getElementById('mainTrigger');
             btn.style.opacity = isMe ? "1" : "0.2";
             btn.style.pointerEvents = isMe ? "auto" : "none";
-
             document.getElementById('onlineScoreBoard').innerHTML = d.players.map(p => 
-                `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #334155">
+                `<div style="display:flex; justify-content:space-between; padding:8px; font-size:13px; border-bottom:1px solid var(--border)">
                     <span>${p.name}</span><b>${p.score}</b>
                 </div>`).join('');
         }
 
         function handleAction() {
             db.ref('rooms/' + roomCode).once('value', s => {
-                let d = s.val();
-                if(!d) return;
-                
+                let d = s.val(); if(!d) return;
                 if(Math.random() * 100 < d.currentProb) {
                     explosionSounds[Math.floor(Math.random()*3)].play();
                     d.currentProb = 2;
@@ -222,25 +250,35 @@
                     d.players[d.turnIndex].score += Math.floor(d.currentProb);
                     d.currentProb += 2;
                 }
-                
                 d.turnIndex = (d.turnIndex + 1) % d.players.length;
-                d.lastActive = Date.now();
                 db.ref('rooms/' + roomCode).update(d);
             });
         }
 
+        // Admin Logik
+        function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
+        function checkAdmin() {
+            if(document.getElementById('adminPass').value === "135369") {
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('adminControls').classList.remove('hidden');
+                db.ref('rooms').on('value', s => {
+                    document.getElementById('statRooms').innerText = s.numChildren();
+                });
+            } else { alert("Falsches Passwort"); }
+        }
+
+        function triggerGlobalChaos() { db.ref('globalEvents').set({ type: 'chaos', timestamp: Date.now() }); }
+        function clearAllRooms() { if(confirm("Gesamten Server löschen?")) db.ref('rooms').remove(); }
         function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing' }); }
         function toggleVisibility() {
             db.ref('rooms/' + roomCode + '/visibility').once('value', s => {
                 let next = s.val() === 'public' ? 'private' : 'public';
                 db.ref('rooms/' + roomCode).update({ visibility: next });
-                document.getElementById('visBtn').innerText = next.toUpperCase();
+                document.getElementById('visBtn').innerText = "Sichtbarkeit: " + next.toUpperCase();
             });
         }
         function quickJoin(c) { document.getElementById('roomCodeInput').value = c; joinRoom(); }
-        function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
-        function checkAdmin() { if(document.getElementById('adminPass').value === "135369") alert("Admin Modus bereit"); }
     </script>
 </body>
 </html>
