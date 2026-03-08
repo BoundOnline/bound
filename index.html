@@ -39,7 +39,7 @@
         .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); border-radius: 0 0 20px 20px; }
         #probText { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
         
-        .trigger-btn { height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--card); background: var(--bg); color: var(--text); font-size: 20px; font-weight: bold; margin: 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .trigger-btn { height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--card); background: var(--bg); color: var(--text); font-size: 20px; font-weight: bold; margin: 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); cursor: pointer; user-select: none; }
         .active-turn .trigger-btn { border-color: var(--accent); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3); }
 
         .score-board { background: var(--card); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: left; }
@@ -47,7 +47,7 @@
         .score-row.active { color: var(--accent); font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="">
 
     <div class="container" id="screen-home">
         <div class="logo-area">
@@ -55,7 +55,7 @@
             <h1>BOUND</h1>
             <p style="color: var(--subtle)">Social Roulette</p>
         </div>
-        <input type="text" id="userName" placeholder="Dein Name">
+        <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
         <select id="themeSelect" onchange="changeTheme()">
             <option value="">Default Theme</option>
             <option value="midnight">Midnight Blue</option>
@@ -90,7 +90,7 @@
     </div>
 
     <script>
-        // --- DEINE AKTUALISIERTE FIREBASE KONFIGURATION ---
+        // --- DEINE FIREBASE KONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCrFeaJLo7LS6hHml8yu8Fh7Z4mklh38uw",
             authDomain: "boundonline-538df.firebaseapp.com",
@@ -100,6 +100,8 @@
             messagingSenderId: "144308798711",
             appId: "1:144308798711:web:ef6f0d619896e533f57ff2"
         };
+
+        // Initialisierung mit expliziter Datenbank-Verknüpfung
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -118,7 +120,7 @@
             const randomIndex = Math.floor(Math.random() * explosionSounds.length);
             const sound = explosionSounds[randomIndex];
             sound.currentTime = 0; 
-            sound.play().catch(e => console.log("Audio-Fehler:", e));
+            sound.play().catch(e => console.warn("Audio-Play blockiert:", e));
         }
 
         function changeTheme() {
@@ -128,7 +130,7 @@
 
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
-            if(!myName) return alert("Wie heißt du?");
+            if(!myName) return alert("Name?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
             db.ref('rooms/' + roomCode).set({
@@ -143,9 +145,9 @@
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
-            if(!myName || !roomCode) return alert("Daten fehlen!");
+            if(!myName || !roomCode) return alert("Daten?");
             db.ref('rooms/' + roomCode).once('value', s => {
-                if(!s.exists()) return alert("Raum existiert nicht!");
+                if(!s.exists()) return alert("Raum nicht gefunden!");
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
                 db.ref('rooms/' + roomCode).update({ players: p });
@@ -184,7 +186,7 @@
             const cur = data.players[data.turnIndex];
             const isMe = cur.name === myName;
 
-            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${cur.name} drückt gerade...`;
+            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${cur.name} ist dran...`;
             document.getElementById('probFill').style.width = data.currentProb + "%";
             document.getElementById('probText').innerText = `${data.currentProb}%`;
             
