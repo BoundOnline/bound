@@ -96,7 +96,18 @@
 
         .score-board { background: #111827; border-radius: 15px; padding: 20px; margin-top: 30px; text-align: left; border: 1px solid #334155; }
         .score-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
-        .score-row.active { color: var(--accent); font-weight: bold; }
+        .version-tag {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    font-size: 10px;
+    color: var(--subtle);
+    opacity: 0.4;
+    text-align: center;
+    pointer-events: none;
+    letter-spacing: 1px;
+}
     </style>
 </head>
 <body>
@@ -139,6 +150,7 @@
             <span id="triggerLabel">DRÜCKEN</span>
         </div>
         <div class="score-board" id="onlineScoreBoard"></div>
+        <div class="version-tag">Beta V1.2</div>
     </div>
 
     <script>
@@ -283,3 +295,4 @@
     </script>
 </body>
 </html>
+
