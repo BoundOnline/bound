@@ -36,7 +36,13 @@
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
             display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
-        .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
+        .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; border: 1px solid var(--accent); }
+        
+        /* Admin Dashboard Styles */
+        .admin-dashboard { max-height: 250px; overflow-y: auto; text-align: left; font-size: 12px; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px; }
+        .admin-room-card { background: #111827; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--accent); }
+        .admin-player-line { display: flex; justify-content: space-between; align-items: center; color: var(--subtle); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .pn-btn { background: var(--accent); color: #0f172a; padding: 2px 8px; font-size: 10px; border-radius: 4px; width: auto; margin: 0; font-weight: bold; }
 
         /* Broadcast Overlay */
         #broadcastOverlay {
@@ -89,9 +95,15 @@
                 <button class="secondary-btn" onclick="closeAdmin()">ABBRECHEN</button>
             </div>
             <div id="adminControls" class="hidden">
-                <input type="text" id="broadcastMsg" placeholder="Nachricht an alle...">
-                <button onclick="sendBroadcast()">BROADCAST SENDEN</button>
-                <button class="danger-btn" onclick="clearAllRooms()">ALLE GRUPPEN LÖSCHEN</button>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="broadcastMsg" placeholder="Globaler Broadcast...">
+                    <button onclick="sendBroadcast()" style="width: 60px; padding: 0;">📣</button>
+                </div>
+                <div id="adminStats" style="font-size: 12px; color: var(--accent); margin-bottom: 10px; text-align: left;">
+                    Aktive Räume: <span id="roomCount">0</span>
+                </div>
+                <div class="admin-dashboard" id="adminDashboard">Lade Daten...</div>
+                <button class="danger-btn" onclick="clearAllRooms()" style="margin-top: 10px; padding: 10px; font-size: 12px;">ALLE GRUPPEN LÖSCHEN</button>
                 <button class="secondary-btn" onclick="closeAdmin()">SCHLIESSEN</button>
             </div>
         </div>
@@ -171,7 +183,12 @@
         });
 
         // Re-Join Logic
-        if(roomCode) { window.onload = () => { myName = "Spieler"; listen(); }; }
+        if(roomCode) { 
+            window.onload = () => { 
+                myName = sessionStorage.getItem('myName') || "Spieler"; 
+                listen(); 
+            }; 
+        }
 
         // Public Rooms
         db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
@@ -219,6 +236,7 @@
             if(document.getElementById('adminPass').value === "135369") {
                 document.getElementById('adminAuth').classList.add('hidden');
                 document.getElementById('adminControls').classList.remove('hidden');
+                startAdminDashboard();
             } else { alert("Falsches Passwort"); }
         }
         function sendBroadcast() {
@@ -230,6 +248,41 @@
         }
         function clearAllRooms() { if(confirm("Wirklich ALLE Räume löschen?")) db.ref('rooms').remove(); }
 
+        function startAdminDashboard() {
+            db.ref('rooms').on('value', snapshot => {
+                const rooms = snapshot.val();
+                const dashboard = document.getElementById('adminDashboard');
+                const countEl = document.getElementById('roomCount');
+                if (!rooms) { dashboard.innerHTML = "Keine aktiven Räume."; countEl.innerText = "0"; return; }
+                const roomKeys = Object.keys(rooms);
+                countEl.innerText = roomKeys.length;
+                dashboard.innerHTML = roomKeys.map(code => {
+                    const r = rooms[code];
+                    const players = r.players || [];
+                    const hostName = players[0] ? players[0].name : "---";
+                    let playerHtml = players.map(p => `
+                        <div class="admin-player-line">
+                            <span>• ${p.name}</span>
+                            <button class="pn-btn" onclick="sendPrivateMsg('${code}', '${p.name}')">PN</button>
+                        </div>
+                    `).join('');
+                    return `<div class="admin-room-card">
+                        <div style="font-weight:bold; color:var(--accent)">#${code} (${r.status})</div>
+                        <div style="font-size:10px; margin-bottom:5px; color:var(--subtle)">Host: ${hostName} | Name: ${r.roomName || '-'}</div>
+                        ${playerHtml}
+                    </div>`;
+                }).join('');
+            });
+        }
+
+        function sendPrivateMsg(code, targetName) {
+            const msg = prompt(`Nachricht an ${targetName} im Raum ${code}:`);
+            if (msg) {
+                db.ref('rooms/' + code + '/adminMsg').set({ to: targetName, text: msg, ts: Date.now() })
+                .then(() => setTimeout(() => db.ref('rooms/' + code + '/adminMsg').remove(), 500));
+            }
+        }
+
         // Core Game Functions
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
@@ -238,6 +291,7 @@
             isHost = true;
             sessionStorage.setItem('activeRoom', roomCode);
             sessionStorage.setItem('isHost', 'true');
+            sessionStorage.setItem('myName', myName);
             db.ref('rooms/' + roomCode).set({ 
                 status: 'lobby', visibility: 'private', roomName: '',
                 lastActive: Date.now(), currentProb: 2, turnIndex: 0, 
@@ -257,6 +311,7 @@
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
                 sessionStorage.setItem('activeRoom', roomCode);
+                sessionStorage.setItem('myName', myName);
                 db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() });
                 listen();
             });
@@ -267,6 +322,12 @@
             document.getElementById('screen-lobby').classList.remove('hidden');
             document.getElementById('displayRoomCode').innerText = "#" + roomCode;
             if(isHost) document.getElementById('hostSettings').classList.remove('hidden');
+
+            // Listener für PN vom Admin
+            db.ref('rooms/' + roomCode + '/adminMsg').on('value', s => {
+                const data = s.val();
+                if(data && data.to === myName) alert("ADMIN NACHRICHT:\n" + data.text);
+            });
 
             db.ref('rooms/' + roomCode).on('value', s => {
                 const d = s.val(); if(!d) { exitRoom(); return; }
