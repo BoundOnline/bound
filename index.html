@@ -20,65 +20,52 @@
         body { background: var(--bg); color: var(--text); transition: background 0.5s; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         
         .container { 
-            width: 100%; max-width: 400px; padding: 30px 20px; text-align: center; 
-            background: var(--card); border-radius: 20px; border: 1px solid #334155;
-            position: relative; max-height: 90vh; overflow-y: auto;
+            width: 100%; max-width: 500px; padding: 25px; text-align: center; 
+            background: var(--card); border-radius: 24px; border: 1px solid #334155;
+            position: relative; max-height: 95vh; overflow-y: auto;
         }
         .hidden { display: none !important; }
 
-        /* Admin & UI Icons */
-        .top-right-tools { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 100; }
-        .icon-btn { background: none; border: none; color: var(--subtle); cursor: pointer; padding: 5px; width: auto; margin: 0; opacity: 0.5; }
-        .icon-btn:hover { opacity: 1; }
+        /* NEUES LAYOUT HOME SCREEN */
+        .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo-img { max-width: 120px; }
+        
+        .main-input-group { margin-bottom: 25px; }
+        
+        .split-layout { display: flex; gap: 20px; text-align: left; }
+        .split-column { flex: 1; display: flex; flex-direction: column; }
+        .column-divider { width: 1px; background: #334155; margin: 0 5px; }
 
-        /* Admin Modal */
-        #adminModal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
+        /* Admin & UI */
+        .icon-btn { background: none; border: none; color: var(--subtle); cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.2s; }
+        .icon-btn:hover { opacity: 1; color: var(--accent); }
+
+        #adminModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
 
-        /* Broadcast Overlay */
-        #broadcastOverlay {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--accent); color: #0f172a; padding: 15px 25px; 
-            border-radius: 50px; font-weight: bold; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
-
-        /* Restliche Styles */
-        #cleanupWarning { background: var(--danger); color: white; padding: 12px; font-size: 13px; font-weight: bold; border-radius: 12px; margin-bottom: 15px; display: none; }
-        .refresh-link { text-decoration: underline; cursor: pointer; margin-left: 8px; color: #fff; }
-        input, select, button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; margin-bottom: 12px; transition: all 0.2s; }
+        /* Buttons & Inputs */
+        input, button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; margin-bottom: 10px; transition: all 0.2s; }
         input { background: #111827; color: white; border: 1px solid #334155; }
-        button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; }
         .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; }
         .danger-btn { background: var(--danger); color: white; }
-        .divider { font-size: 10px; color: var(--subtle); margin: 5px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Toggle Switch */
-        .toggle-container { display: flex; background: #111827; border-radius: 50px; padding: 4px; margin: 10px 0 20px; border: 1px solid #334155; position: relative; }
-        .toggle-option { flex: 1; padding: 10px; cursor: pointer; z-index: 2; font-size: 14px; font-weight: bold; color: var(--subtle); }
-        .toggle-option.active { color: #0f172a; }
-        .toggle-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: var(--accent); border-radius: 50px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
-        .is-public .toggle-slider { transform: translateX(100%); }
+        /* Scrollbereich für Öffentliche Lobbys */
+        .public-rooms-scroll { max-height: 180px; overflow-y: auto; margin-top: 10px; padding-right: 5px; }
+        .public-room-item { background: #111827; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #334155; cursor: pointer; font-size: 13px; }
+        .public-room-item:hover { border-color: var(--accent); }
 
-        .public-rooms { margin-top: 15px; text-align: left; }
-        .public-room-item { background: #111827; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #334155; cursor: pointer; }
-        .prob-container { background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; position: relative; border: 2px solid #334155; }
-        .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; }
-        #probText { font-size: 48px; font-weight: 900; }
-        .trigger-btn { height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--bg); background: var(--card); color: var(--text); font-size: 20px; font-weight: 800; margin: 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none; }
+        /* Game UI */
+        .prob-container { background: #111827; border-radius: 20px; padding: 30px 10px; margin: 20px 0; position: relative; border: 2px solid #334155; }
+        .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 6px; background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; }
+        #probText { font-size: 40px; font-weight: 900; }
+        .trigger-btn { height: 160px; width: 160px; border-radius: 50%; border: 6px solid var(--bg); background: var(--card); color: var(--text); font-size: 18px; font-weight: 800; margin: 20px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+
         .version-tag { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; color: var(--subtle); opacity: 0.5; }
+        #broadcastOverlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0f172a; padding: 12px 20px; border-radius: 50px; font-weight: bold; z-index: 2000; }
     </style>
 </head>
 <body>
-
-    <div class="top-right-tools">
-        <button class="icon-btn" onclick="openAdmin()">⚙️</button>
-    </div>
 
     <div id="adminModal" class="hidden">
         <div class="admin-box">
@@ -86,12 +73,12 @@
             <div id="adminAuth">
                 <input type="password" id="adminPass" placeholder="Passwort">
                 <button onclick="checkAdmin()">LOGIN</button>
-                <button class="secondary-btn" onclick="closeAdmin()">ABBRECHEN</button>
+                <button class="secondary-btn" onclick="closeAdmin()">ZURÜCK</button>
             </div>
             <div id="adminControls" class="hidden">
                 <input type="text" id="broadcastMsg" placeholder="Nachricht an alle...">
-                <button onclick="sendBroadcast()">BROADCAST SENDEN</button>
-                <button class="danger-btn" onclick="clearAllRooms()">ALLE GRUPPEN LÖSCHEN</button>
+                <button onclick="sendBroadcast()">BROADCAST</button>
+                <button class="danger-btn" onclick="clearAllRooms()">ALLE LÖSCHEN</button>
                 <button class="secondary-btn" onclick="closeAdmin()">SCHLIESSEN</button>
             </div>
         </div>
@@ -100,34 +87,50 @@
     <div id="broadcastOverlay" class="hidden"></div>
 
     <div class="container" id="screen-home">
-        <div class="logo-area">
-            <img src="logo2bound.png" alt="BOUND" style="max-width: 140px; margin-bottom: 20px;">
+        <div class="home-header">
+            <img src="logo2bound.png" alt="BOUND" class="logo-img">
+            <button class="icon-btn" onclick="openAdmin()">⚙️</button>
         </div>
-        <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
-        <button onclick="createRoom()">SPIEL ERSTELLEN</button>
-        <div class="divider">oder</div>
-        <input type="text" id="roomCodeInput" placeholder="4-stelliger Code">
-        <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
-        <div id="publicRoomsContainer" class="hidden">
-            <div class="divider">Öffentliche Lobbys</div>
-            <div id="publicList" class="public-rooms"></div>
+
+        <div class="main-input-group">
+            <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
+        </div>
+
+        <div class="split-layout">
+            <div class="split-column">
+                <h4 style="font-size: 11px; color: var(--subtle); margin-bottom: 10px; text-transform: uppercase;">Erstellen</h4>
+                <button onclick="createRoom()" style="font-size: 13px;">SPIEL ERSTELLEN</button>
+                
+                <div id="publicRoomsContainer" class="hidden">
+                    <h4 style="font-size: 11px; color: var(--subtle); margin-top: 15px; text-transform: uppercase;">Öffentlich</h4>
+                    <div id="publicList" class="public-rooms-scroll"></div>
+                </div>
+            </div>
+
+            <div class="column-divider"></div>
+
+            <div class="split-column">
+                <h4 style="font-size: 11px; color: var(--subtle); margin-bottom: 10px; text-transform: uppercase;">Beitreten</h4>
+                <input type="text" id="roomCodeInput" placeholder="Code" maxlength="4" style="text-align: center;">
+                <button class="secondary-btn" onclick="joinRoom()" style="font-size: 13px;">BEITRETEN</button>
+            </div>
         </div>
     </div>
 
     <div class="container hidden" id="screen-lobby">
-        <div id="cleanupWarning">Lobby inaktiv! <span class="refresh-link" onclick="refreshInactivity()">VERLÄNGERN</span></div>
-        <h2 style="margin-bottom: 5px;">Lobby</h2>
-        <h1 id="displayRoomCode" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;">----</h1>
-        <div id="hostSettings" class="hidden">
-            <input type="text" id="roomNameInput" placeholder="Name der Gruppe" oninput="updateRoomName()">
-            <div class="toggle-container" id="visibilityToggle" onclick="toggleVisibility()">
-                <div class="toggle-slider"></div>
-                <div class="toggle-option" id="opt-private">PRIVAT</div>
-                <div class="toggle-option" id="opt-public">ÖFFENTLICH</div>
-            </div>
+        <div id="cleanupWarning" style="background:var(--danger); padding:10px; border-radius:10px; margin-bottom:10px; font-size:12px; display:none;">
+            Inaktiv! <span onclick="refreshInactivity()" style="text-decoration:underline; cursor:pointer">VERLÄNGERN</span>
         </div>
-        <div id="lobbyPlayerList" style="margin-bottom: 20px; text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px;"></div>
-        <button id="startBtn" onclick="startOnlineGame()" style="display:none">SPIEL STARTEN</button>
+        <h2 style="font-size: 16px;">Raum-Code</h2>
+        <h1 id="displayRoomCode" style="font-size: 45px; color: var(--accent); margin-bottom: 15px;">----</h1>
+        
+        <div id="hostSettings" class="hidden">
+            <input type="text" id="roomNameInput" placeholder="Gruppenname (Optional)" oninput="updateRoomName()">
+            <button class="secondary-btn" id="visBtn" onclick="toggleVisibility()" style="font-size: 12px; margin-bottom: 20px;">SICHTBARKEIT: PRIVAT</button>
+        </div>
+
+        <div id="lobbyPlayerList" style="text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 5px;"></div>
+        <button id="startBtn" onclick="startOnlineGame()" style="display:none; margin-top: 20px;">SPIEL STARTEN</button>
     </div>
 
     <div class="container hidden" id="screen-game">
@@ -137,7 +140,7 @@
             <div class="prob-bar" id="probFill"></div>
         </div>
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">DRÜCKEN</div>
-        <div class="score-board" id="onlineScoreBoard"></div>
+        <div id="onlineScoreBoard" style="margin-top: 10px;"></div>
     </div>
 
     <div class="version-tag">Beta V1.2</div>
@@ -160,7 +163,6 @@
         let isHost = sessionStorage.getItem('isHost') === 'true';
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
-        // Broadcast Listener (Global)
         db.ref('broadcast').on('value', s => {
             const msg = s.val();
             if(msg) {
@@ -170,10 +172,8 @@
             }
         });
 
-        // Re-Join Logic
         if(roomCode) { window.onload = () => { myName = "Spieler"; listen(); }; }
 
-        // Public Rooms
         db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
             const rooms = s.val();
             const container = document.getElementById('publicRoomsContainer');
@@ -183,31 +183,12 @@
                 const r = rooms[code];
                 if(r.status !== 'lobby') return '';
                 return `<div class="public-room-item" onclick="quickJoin('${code}')">
-                    <span style="font-weight:800;color:var(--accent);display:block">${r.roomName || "Gruppe"}</span>
-                    <span style="font-size:12px;color:var(--subtle)">Host: ${r.players[0].name} • #${code}</span>
+                    <strong>${r.roomName || "Gruppe"}</strong><br>
+                    <small>Host: ${r.players[0].name}</small>
                 </div>`;
             }).join('');
         });
 
-        // Inactivity Timer
-        setInterval(() => {
-            if (!roomCode) return;
-            db.ref('rooms/' + roomCode + '/lastActive').once('value', s => {
-                const lastActive = s.val();
-                if (!lastActive) return;
-                const diff = (Date.now() - lastActive) / 1000;
-                if (diff > 180) {
-                    if (isHost) { db.ref('rooms/' + roomCode).off(); db.ref('rooms/' + roomCode).remove().then(() => exitRoom()); } 
-                    else { exitRoom(); }
-                } else if (diff > 140 && isHost) { document.getElementById('cleanupWarning').style.display = 'block'; } 
-                else { document.getElementById('cleanupWarning').style.display = 'none'; }
-            });
-        }, 5000);
-
-        function refreshInactivity() { if(roomCode) db.ref('rooms/' + roomCode).update({ lastActive: Date.now() }); }
-        function exitRoom() { sessionStorage.clear(); location.reload(); }
-
-        // Admin Functions
         function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
         function closeAdmin() { 
             document.getElementById('adminModal').classList.add('hidden');
@@ -219,7 +200,7 @@
             if(document.getElementById('adminPass').value === "135369") {
                 document.getElementById('adminAuth').classList.add('hidden');
                 document.getElementById('adminControls').classList.remove('hidden');
-            } else { alert("Falsches Passwort"); }
+            } else { alert("Falsch!"); }
         }
         function sendBroadcast() {
             const msg = document.getElementById('broadcastMsg').value;
@@ -228,12 +209,11 @@
                 setTimeout(() => db.ref('broadcast').set(null), 1000);
             });
         }
-        function clearAllRooms() { if(confirm("Wirklich ALLE Räume löschen?")) db.ref('rooms').remove(); }
+        function clearAllRooms() { if(confirm("Alle Räume löschen?")) db.ref('rooms').remove(); }
 
-        // Core Game Functions
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
-            if(!myName) return alert("Name?");
+            if(!myName) return alert("Wie heißt du?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
             sessionStorage.setItem('activeRoom', roomCode);
@@ -251,9 +231,9 @@
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
-            if(!myName || !roomCode) return alert("Name & Code?");
+            if(!myName || !roomCode) return alert("Name & Code eingeben!");
             db.ref('rooms/' + roomCode).once('value', s => {
-                if(!s.exists()) return alert("Raum nicht gefunden!");
+                if(!s.exists()) return alert("Raum existiert nicht!");
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
                 sessionStorage.setItem('activeRoom', roomCode);
@@ -270,11 +250,11 @@
 
             db.ref('rooms/' + roomCode).on('value', s => {
                 const d = s.val(); if(!d) { exitRoom(); return; }
-                const toggle = document.getElementById('visibilityToggle');
-                if(d.visibility === 'public') toggle.classList.add('is-public'); else toggle.classList.remove('is-public');
+                const visBtn = document.getElementById('visBtn');
+                visBtn.innerText = "SICHTBARKEIT: " + d.visibility.toUpperCase();
 
                 if(d.status === 'lobby') {
-                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.05)">• ${p.name}</div>`).join('');
+                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05)">• ${p.name}</div>`).join('');
                     if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display='block';
                 } else { updateUI(d); }
             });
@@ -296,9 +276,9 @@
             const isMe = d.players[d.turnIndex].name === myName;
             document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${d.players[d.turnIndex].name} ist dran...`;
             document.getElementById('probFill').style.width = d.currentProb + "%";
-            document.getElementById('probText').innerText = d.currentProb + "%";
+            document.getElementById('probText').innerText = Math.floor(d.currentProb) + "%";
             document.getElementById('onlineScoreBoard').innerHTML = d.players.map((p, i) => `
-                <div style="display:flex;justify-content:space-between;padding:10px;background:${i===d.turnIndex?'rgba(56,189,248,0.2)':'transparent'};border-radius:10px">
+                <div style="display:flex;justify-content:space-between;padding:8px;background:${i===d.turnIndex?'rgba(56,189,248,0.2)':'transparent'};border-radius:8px;font-size:14px">
                     <span>${p.name}</span><span>${p.score}</span>
                 </div>`).join('');
             const trigger = document.getElementById('mainTrigger');
@@ -321,6 +301,21 @@
                 db.ref('rooms/' + roomCode).update(d);
             });
         }
+
+        function exitRoom() { sessionStorage.clear(); location.reload(); }
+        function refreshInactivity() { if(roomCode) db.ref('rooms/' + roomCode).update({ lastActive: Date.now() }); }
+        
+        setInterval(() => {
+            if (!roomCode) return;
+            db.ref('rooms/' + roomCode + '/lastActive').once('value', s => {
+                const lastActive = s.val();
+                if (!lastActive) return;
+                const diff = (Date.now() - lastActive) / 1000;
+                if (diff > 180) exitRoom();
+                else if (diff > 140 && isHost) document.getElementById('cleanupWarning').style.display = 'block';
+                else document.getElementById('cleanupWarning').style.display = 'none';
+            });
+        }, 5000);
     </script>
 </body>
 </html>
