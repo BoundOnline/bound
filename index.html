@@ -11,141 +11,133 @@
             --bg: #0f172a;
             --card: #1e293b;
             --accent: #38bdf8;
+            --danger: #ef4444;
             --text: #f8fafc;
-            --subtle: #64748b;
-            --border: #334155;
+            --subtle: #94a3b8;
+            --btn-hover: #0ea5e9;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        body { 
-            background: var(--bg); color: var(--text); 
-            display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; min-height: 100vh; overflow-x: hidden; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); transition: background 0.5s; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         
-        /* Layout */
         .container { 
-            width: 90%; max-width: 450px; padding: 30px; text-align: center; 
-            background: var(--card); border-radius: 28px; border: 1px solid var(--border);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%; max-width: 400px; padding: 30px 20px; text-align: center; 
+            background: var(--card); border-radius: 20px; border: 1px solid #334155;
+            position: relative; max-height: 90vh; overflow-y: auto;
         }
         .hidden { display: none !important; }
 
-        /* Typography & Elements */
-        h2 { letter-spacing: 3px; font-weight: 900; color: var(--text); margin-bottom: 20px; }
-        .label { font-size: 11px; color: var(--subtle); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        /* Admin & UI Icons */
+        .top-right-tools { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 100; }
+        .icon-btn { background: none; border: none; color: var(--subtle); cursor: pointer; padding: 5px; width: auto; margin: 0; opacity: 0.5; }
+        .icon-btn:hover { opacity: 1; }
 
-        input, button { width: 100%; padding: 15px; border-radius: 14px; border: none; font-size: 15px; transition: all 0.2s; }
-        input { background: #0f172a; color: white; border: 1px solid var(--border); margin-bottom: 12px; }
-        input:focus { border-color: var(--accent); outline: none; }
-        
-        button { background: var(--accent); color: #0f172a; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        button:active { transform: scale(0.97); }
-        .secondary-btn { background: #334155; color: white; }
-        .outline-btn { background: transparent; border: 1px solid var(--border); color: var(--text); }
-
-        /* Home Split */
-        .home-grid { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 20px; align-items: start; margin-top: 20px; }
-        .divider { background: var(--border); width: 1px; height: 100%; }
-
-        /* Public Rooms (Clean) */
-        #publicRoomsContainer { width: 90%; max-width: 450px; margin-top: 25px; }
-        .public-item { 
-            background: rgba(30, 41, 59, 0.5); padding: 14px; border-radius: 16px; 
-            margin-bottom: 8px; border: 1px solid var(--border); cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
+        /* Admin Modal */
+        #adminModal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
-        .public-item:hover { border-color: var(--accent); background: var(--card); }
+        .admin-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
 
-        /* Game UI */
-        .prob-box { background: #0f172a; border-radius: 24px; padding: 40px 20px; margin: 25px 0; border: 1px solid var(--border); position: relative; overflow: hidden; }
-        .prob-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        #probText { font-size: 56px; font-weight: 900; color: var(--text); }
-
-        .trigger-btn { 
-            height: 150px; width: 150px; border-radius: 50%; border: 8px solid var(--bg); 
-            background: var(--card); color: var(--text); font-size: 16px; font-weight: 800; 
-            margin: 20px auto; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center;
+        /* Broadcast Overlay */
+        #broadcastOverlay {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #0f172a; padding: 15px 25px; 
+            border-radius: 50px; font-weight: bold; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideDown 0.5s ease;
         }
 
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .version-tag { position: fixed; bottom: 15px; font-size: 10px; color: var(--subtle); }
+        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
+
+        /* Restliche Styles */
+        #cleanupWarning { background: var(--danger); color: white; padding: 12px; font-size: 13px; font-weight: bold; border-radius: 12px; margin-bottom: 15px; display: none; }
+        .refresh-link { text-decoration: underline; cursor: pointer; margin-left: 8px; color: #fff; }
+        input, select, button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; margin-bottom: 12px; transition: all 0.2s; }
+        input { background: #111827; color: white; border: 1px solid #334155; }
+        button { background: var(--accent); color: #0f172a; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #334155; }
+        .danger-btn { background: var(--danger); color: white; }
+        .divider { font-size: 10px; color: var(--subtle); margin: 5px 0 15px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Toggle Switch */
+        .toggle-container { display: flex; background: #111827; border-radius: 50px; padding: 4px; margin: 10px 0 20px; border: 1px solid #334155; position: relative; }
+        .toggle-option { flex: 1; padding: 10px; cursor: pointer; z-index: 2; font-size: 14px; font-weight: bold; color: var(--subtle); }
+        .toggle-option.active { color: #0f172a; }
+        .toggle-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: var(--accent); border-radius: 50px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
+        .is-public .toggle-slider { transform: translateX(100%); }
+
+        .public-rooms { margin-top: 15px; text-align: left; }
+        .public-room-item { background: #111827; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #334155; cursor: pointer; }
+        .prob-container { background: #111827; border-radius: 20px; padding: 40px 20px; margin: 20px 0; position: relative; border: 2px solid #334155; }
+        .prob-bar { position: absolute; bottom: 0; left: 0; width: 0%; height: 8px; background: var(--accent); transition: width 0.4s ease; border-radius: 0 0 20px 20px; }
+        #probText { font-size: 48px; font-weight: 900; }
+        .trigger-btn { height: 180px; width: 180px; border-radius: 50%; border: 8px solid var(--bg); background: var(--card); color: var(--text); font-size: 20px; font-weight: 800; margin: 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.4); cursor: pointer; user-select: none; }
+        .version-tag { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 10px; color: var(--subtle); opacity: 0.5; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="screen-home">
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <img src="logo2bound.png" alt="BOUND" style="max-width: 110px;">
-            <span onclick="openAdmin()" style="cursor:pointer; color: var(--subtle); font-size: 20px;">⚙️</span>
-        </div>
-        
-        <div style="margin: 25px 0;">
-            <div class="label">Profil</div>
-            <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
-        </div>
+    <div class="top-right-tools">
+        <button class="icon-btn" onclick="openAdmin()">⚙️</button>
+    </div>
 
-        <div class="home-grid">
-            <div>
-                <div class="label">Hosten</div>
-                <button onclick="createRoom()">NEU</button>
+    <div id="adminModal" class="hidden">
+        <div class="admin-box">
+            <h3 style="margin-bottom: 15px; color: var(--accent)">Admin Panel</h3>
+            <div id="adminAuth">
+                <input type="password" id="adminPass" placeholder="Passwort">
+                <button onclick="checkAdmin()">LOGIN</button>
+                <button class="secondary-btn" onclick="closeAdmin()">ABBRECHEN</button>
             </div>
-            <div class="divider"></div>
-            <div>
-                <div class="label">Beitreten</div>
-                <input type="text" id="roomCodeInput" placeholder="Code" maxlength="4" style="text-align: center; margin-bottom: 10px; padding: 10px;">
-                <button class="secondary-btn" onclick="joinRoom()">JOIN</button>
+            <div id="adminControls" class="hidden">
+                <input type="text" id="broadcastMsg" placeholder="Nachricht an alle...">
+                <button onclick="sendBroadcast()">BROADCAST SENDEN</button>
+                <button class="danger-btn" onclick="clearAllRooms()">ALLE GRUPPEN LÖSCHEN</button>
+                <button class="secondary-btn" onclick="closeAdmin()">SCHLIESSEN</button>
             </div>
         </div>
     </div>
 
-    <div id="publicRoomsContainer" class="hidden">
-        <div class="label" style="text-align: left; margin-left: 10px;">Öffentliche Lobbies</div>
-        <div id="publicList"></div>
+    <div id="broadcastOverlay" class="hidden"></div>
+
+    <div class="container" id="screen-home">
+        <div class="logo-area">
+            <img src="logo2bound.png" alt="BOUND" style="max-width: 140px; margin-bottom: 20px;">
+        </div>
+        <input type="text" id="userName" placeholder="Dein Name" autocomplete="off">
+        <button onclick="createRoom()">SPIEL ERSTELLEN</button>
+        <div class="divider">oder</div>
+        <input type="text" id="roomCodeInput" placeholder="4-stelliger Code">
+        <button class="secondary-btn" onclick="joinRoom()">BEITRETEN</button>
+        <div id="publicRoomsContainer" class="hidden">
+            <div class="divider">Öffentliche Lobbys</div>
+            <div id="publicList" class="public-rooms"></div>
+        </div>
     </div>
 
     <div class="container hidden" id="screen-lobby">
-        <div class="label">Raum Code</div>
-        <h1 id="displayRoomCode" style="font-size: 60px; color: var(--accent); margin-bottom: 20px;">----</h1>
-        
+        <div id="cleanupWarning">Lobby inaktiv! <span class="refresh-link" onclick="refreshInactivity()">VERLÄNGERN</span></div>
+        <h2 style="margin-bottom: 5px;">Lobby</h2>
+        <h1 id="displayRoomCode" style="font-size: 40px; color: var(--accent); margin-bottom: 20px;">----</h1>
         <div id="hostSettings" class="hidden">
-            <input type="text" id="roomNameInput" placeholder="Gruppenname (Optional)" oninput="updateRoomName()">
-            <button class="outline-btn" id="visBtn" onclick="toggleVisibility()">Sichtbarkeit: PRIVAT</button>
+            <input type="text" id="roomNameInput" placeholder="Name der Gruppe" oninput="updateRoomName()">
+            <div class="toggle-container" id="visibilityToggle" onclick="toggleVisibility()">
+                <div class="toggle-slider"></div>
+                <div class="toggle-option" id="opt-private">PRIVAT</div>
+                <div class="toggle-option" id="opt-public">ÖFFENTLICH</div>
+            </div>
         </div>
-        
-        <div id="lobbyPlayerList" style="margin: 25px 0; text-align: left;"></div>
-        <button id="startBtn" onclick="startOnlineGame()" style="display:none; background: #10b981; color: white;">STARTEN</button>
+        <div id="lobbyPlayerList" style="margin-bottom: 20px; text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px;"></div>
+        <button id="startBtn" onclick="startOnlineGame()" style="display:none">SPIEL STARTEN</button>
     </div>
 
     <div class="container hidden" id="screen-game">
-        <div id="turnInfo" class="label" style="font-size: 14px; color: var(--accent);">-</div>
-        <div class="prob-box">
+        <div id="turnInfo" style="margin-bottom: 10px; font-weight: bold; color: var(--subtle)">-</div>
+        <div class="prob-container">
             <div id="probText">2%</div>
             <div class="prob-bar" id="probFill"></div>
         </div>
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">DRÜCKEN</div>
-        <div id="onlineScoreBoard" style="margin-top: 20px;"></div>
-    </div>
-
-    <div id="adminModal" class="modal-overlay hidden">
-        <div class="container" style="max-width: 350px;">
-            <h3 style="margin-bottom: 20px;">Admin Panel</h3>
-            <div id="adminAuth">
-                <input type="password" id="adminPass" placeholder="Passwort">
-                <button onclick="checkAdmin()">LOGIN</button>
-                <button class="outline-btn" style="margin-top:10px" onclick="closeAdmin()">ABBRECHEN</button>
-            </div>
-            <div id="adminControls" class="hidden">
-                <div style="background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; text-align: left;">
-                    <div>Server-Status: <span style="color:var(--accent)">Online</span></div>
-                    <div>Aktive Räume: <span id="statRooms" style="color:var(--accent)">0</span></div>
-                </div>
-                <button class="secondary-btn" onclick="triggerGlobalChaos()">🔥 CHAOS SOUND</button>
-                <button class="outline-btn" style="margin-top:10px; border-color: #ef4444; color: #ef4444;" onclick="clearAllRooms()">SERVER RESET</button>
-                <button class="outline-btn" style="margin-top:20px" onclick="closeAdmin()">SCHLIESSEN</button>
-            </div>
-        </div>
+        <div class="score-board" id="onlineScoreBoard"></div>
     </div>
 
     <div class="version-tag">Beta V1.2</div>
@@ -163,10 +155,25 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myName = ""; let roomCode = ""; let isHost = false;
+        let myName = ""; 
+        let roomCode = sessionStorage.getItem('activeRoom') || ""; 
+        let isHost = sessionStorage.getItem('isHost') === 'true';
         const explosionSounds = [new Audio('a1.mp3'), new Audio('a2.mp3'), new Audio('a3.mp3')];
 
-        // Public Rooms Listener
+        // Broadcast Listener (Global)
+        db.ref('broadcast').on('value', s => {
+            const msg = s.val();
+            if(msg) {
+                const el = document.getElementById('broadcastOverlay');
+                el.innerText = msg; el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 5000);
+            }
+        });
+
+        // Re-Join Logic
+        if(roomCode) { window.onload = () => { myName = "Spieler"; listen(); }; }
+
+        // Public Rooms
         db.ref('rooms').orderByChild('visibility').equalTo('public').on('value', s => {
             const rooms = s.val();
             const container = document.getElementById('publicRoomsContainer');
@@ -175,74 +182,133 @@
             document.getElementById('publicList').innerHTML = Object.keys(rooms).map(code => {
                 const r = rooms[code];
                 if(r.status !== 'lobby') return '';
-                return `<div class="public-item" onclick="quickJoin('${code}')">
-                    <span style="font-weight:600">${r.roomName || 'Offenes Spiel'}</span>
-                    <span style="color:var(--accent); font-size:12px">#${code}</span>
+                return `<div class="public-room-item" onclick="quickJoin('${code}')">
+                    <span style="font-weight:800;color:var(--accent);display:block">${r.roomName || "Gruppe"}</span>
+                    <span style="font-size:12px;color:var(--subtle)">Host: ${r.players[0].name} • #${code}</span>
                 </div>`;
             }).join('');
         });
 
+        // Inactivity Timer
+        setInterval(() => {
+            if (!roomCode) return;
+            db.ref('rooms/' + roomCode + '/lastActive').once('value', s => {
+                const lastActive = s.val();
+                if (!lastActive) return;
+                const diff = (Date.now() - lastActive) / 1000;
+                if (diff > 180) {
+                    if (isHost) { db.ref('rooms/' + roomCode).off(); db.ref('rooms/' + roomCode).remove().then(() => exitRoom()); } 
+                    else { exitRoom(); }
+                } else if (diff > 140 && isHost) { document.getElementById('cleanupWarning').style.display = 'block'; } 
+                else { document.getElementById('cleanupWarning').style.display = 'none'; }
+            });
+        }, 5000);
+
+        function refreshInactivity() { if(roomCode) db.ref('rooms/' + roomCode).update({ lastActive: Date.now() }); }
+        function exitRoom() { sessionStorage.clear(); location.reload(); }
+
+        // Admin Functions
+        function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdmin() { 
+            document.getElementById('adminModal').classList.add('hidden');
+            document.getElementById('adminAuth').classList.remove('hidden');
+            document.getElementById('adminControls').classList.add('hidden');
+            document.getElementById('adminPass').value = "";
+        }
+        function checkAdmin() {
+            if(document.getElementById('adminPass').value === "135369") {
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('adminControls').classList.remove('hidden');
+            } else { alert("Falsches Passwort"); }
+        }
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcastMsg').value;
+            if(msg) db.ref('broadcast').set(msg).then(() => {
+                document.getElementById('broadcastMsg').value = "";
+                setTimeout(() => db.ref('broadcast').set(null), 1000);
+            });
+        }
+        function clearAllRooms() { if(confirm("Wirklich ALLE Räume löschen?")) db.ref('rooms').remove(); }
+
+        // Core Game Functions
         function createRoom() {
             myName = document.getElementById('userName').value.trim();
-            if(!myName) return alert("Wie heißt du?");
+            if(!myName) return alert("Name?");
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
-            db.ref('rooms/' + roomCode).set({
-                status: 'lobby', visibility: 'private', currentProb: 2, turnIndex: 0,
-                lastActive: Date.now(), players: [{ name: myName, score: 0 }]
-            }).then(listen);
+            sessionStorage.setItem('activeRoom', roomCode);
+            sessionStorage.setItem('isHost', 'true');
+            db.ref('rooms/' + roomCode).set({ 
+                status: 'lobby', visibility: 'private', roomName: '',
+                lastActive: Date.now(), currentProb: 2, turnIndex: 0, 
+                players: [{ name: myName, score: 0 }] 
+            });
+            listen();
         }
+
+        function quickJoin(code) { document.getElementById('roomCodeInput').value = code; joinRoom(); }
 
         function joinRoom() {
             myName = document.getElementById('userName').value.trim();
             roomCode = document.getElementById('roomCodeInput').value.trim();
-            if(!myName || !roomCode) return alert("Name & Code fehlen!");
+            if(!myName || !roomCode) return alert("Name & Code?");
             db.ref('rooms/' + roomCode).once('value', s => {
                 if(!s.exists()) return alert("Raum nicht gefunden!");
                 let p = s.val().players || [];
                 p.push({ name: myName, score: 0 });
-                db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() }).then(listen);
+                sessionStorage.setItem('activeRoom', roomCode);
+                db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() });
+                listen();
             });
         }
 
         function listen() {
             document.getElementById('screen-home').classList.add('hidden');
-            document.getElementById('publicRoomsContainer').classList.add('hidden');
             document.getElementById('screen-lobby').classList.remove('hidden');
             document.getElementById('displayRoomCode').innerText = "#" + roomCode;
             if(isHost) document.getElementById('hostSettings').classList.remove('hidden');
 
             db.ref('rooms/' + roomCode).on('value', s => {
-                const d = s.val(); if(!d) return;
+                const d = s.val(); if(!d) { exitRoom(); return; }
+                const toggle = document.getElementById('visibilityToggle');
+                if(d.visibility === 'public') toggle.classList.add('is-public'); else toggle.classList.remove('is-public');
+
                 if(d.status === 'lobby') {
-                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => 
-                        `<div style="padding:10px; border-bottom:1px solid var(--border)">• ${p.name}</div>`).join('');
-                    if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display = 'block';
-                } else {
-                    showGame(d);
-                }
+                    document.getElementById('lobbyPlayerList').innerHTML = d.players.map(p => `<div style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.05)">• ${p.name}</div>`).join('');
+                    if(isHost && d.players.length >= 2) document.getElementById('startBtn').style.display='block';
+                } else { updateUI(d); }
             });
         }
 
-        function showGame(d) {
+        function toggleVisibility() {
+            if(!isHost) return;
+            db.ref('rooms/' + roomCode + '/visibility').once('value', s => {
+                db.ref('rooms/' + roomCode).update({ visibility: s.val() === 'public' ? 'private' : 'public', lastActive: Date.now() });
+            });
+        }
+
+        function updateRoomName() { db.ref('rooms/' + roomCode).update({ roomName: document.getElementById('roomNameInput').value, lastActive: Date.now() }); }
+        function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing', lastActive: Date.now() }); }
+
+        function updateUI(d) {
             document.getElementById('screen-lobby').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
             const isMe = d.players[d.turnIndex].name === myName;
-            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${d.players[d.turnIndex].name} IST AM ZUG...`;
-            document.getElementById('probText').innerText = Math.floor(d.currentProb) + "%";
+            document.getElementById('turnInfo').innerText = isMe ? "DU BIST DRAN!" : `${d.players[d.turnIndex].name} ist dran...`;
             document.getElementById('probFill').style.width = d.currentProb + "%";
-            const btn = document.getElementById('mainTrigger');
-            btn.style.opacity = isMe ? "1" : "0.2";
-            btn.style.pointerEvents = isMe ? "auto" : "none";
-            document.getElementById('onlineScoreBoard').innerHTML = d.players.map(p => 
-                `<div style="display:flex; justify-content:space-between; padding:8px; font-size:13px; border-bottom:1px solid var(--border)">
-                    <span>${p.name}</span><b>${p.score}</b>
+            document.getElementById('probText').innerText = d.currentProb + "%";
+            document.getElementById('onlineScoreBoard').innerHTML = d.players.map((p, i) => `
+                <div style="display:flex;justify-content:space-between;padding:10px;background:${i===d.turnIndex?'rgba(56,189,248,0.2)':'transparent'};border-radius:10px">
+                    <span>${p.name}</span><span>${p.score}</span>
                 </div>`).join('');
+            const trigger = document.getElementById('mainTrigger');
+            trigger.style.opacity = isMe ? "1" : "0.3";
+            trigger.style.pointerEvents = isMe ? "auto" : "none";
         }
 
         function handleAction() {
             db.ref('rooms/' + roomCode).once('value', s => {
-                let d = s.val(); if(!d) return;
+                let d = s.val();
                 if(Math.random() * 100 < d.currentProb) {
                     explosionSounds[Math.floor(Math.random()*3)].play();
                     d.currentProb = 2;
@@ -251,34 +317,10 @@
                     d.currentProb += 2;
                 }
                 d.turnIndex = (d.turnIndex + 1) % d.players.length;
+                d.lastActive = Date.now();
                 db.ref('rooms/' + roomCode).update(d);
             });
         }
-
-        // Admin Logik
-        function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('adminModal').classList.add('hidden'); }
-        function checkAdmin() {
-            if(document.getElementById('adminPass').value === "135369") {
-                document.getElementById('adminAuth').classList.add('hidden');
-                document.getElementById('adminControls').classList.remove('hidden');
-                db.ref('rooms').on('value', s => {
-                    document.getElementById('statRooms').innerText = s.numChildren();
-                });
-            } else { alert("Falsches Passwort"); }
-        }
-
-        function triggerGlobalChaos() { db.ref('globalEvents').set({ type: 'chaos', timestamp: Date.now() }); }
-        function clearAllRooms() { if(confirm("Gesamten Server löschen?")) db.ref('rooms').remove(); }
-        function startOnlineGame() { db.ref('rooms/' + roomCode).update({ status: 'playing' }); }
-        function toggleVisibility() {
-            db.ref('rooms/' + roomCode + '/visibility').once('value', s => {
-                let next = s.val() === 'public' ? 'private' : 'public';
-                db.ref('rooms/' + roomCode).update({ visibility: next });
-                document.getElementById('visBtn').innerText = "Sichtbarkeit: " + next.toUpperCase();
-            });
-        }
-        function quickJoin(c) { document.getElementById('roomCodeInput').value = c; joinRoom(); }
     </script>
 </body>
 </html>
