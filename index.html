@@ -140,6 +140,10 @@
         </div>
         <div id="lobbyPlayerList" style="margin-bottom: 20px; text-align: left; background: rgba(0,0,0,0.2); border-radius: 12px;"></div>
         <button id="startBtn" onclick="startOnlineGame()" style="display:none">SPIEL STARTEN</button>
+        <div id="roomMemberActions" style="margin-top: 10px;">
+            <button class="danger-btn hidden" id="hostDeleteBtn" onclick="deleteMyRoom()">GRUPPE LÖSCHEN</button>
+            <button class="secondary-btn hidden" id="playerLeaveBtn" onclick="leaveRoom()">GRUPPE VERLASSEN</button>
+        </div>
     </div>
 
     <div class="container hidden" id="screen-game">
@@ -150,6 +154,9 @@
         </div>
         <div class="trigger-btn" id="mainTrigger" onclick="handleAction()">DRÜCKEN</div>
         <div class="score-board" id="onlineScoreBoard"></div>
+        <button class="secondary-btn" style="margin-top: 20px; padding: 10px; font-size: 12px;" onclick="isHost ? deleteMyRoom() : leaveRoom()">
+            SPIEL ABBRECHEN / VERLASSEN
+        </button>
     </div>
 
     <div class="version-tag">Beta V1.2</div>
@@ -214,7 +221,7 @@
                 if (!lastActive) return;
                 const diff = (Date.now() - lastActive) / 1000;
                 if (diff > 180) {
-                    if (isHost) { db.ref('rooms/' + roomCode).off(); db.ref('rooms/' + roomCode).remove().then(() => exitRoom()); } 
+                    if (isHost) { deleteMyRoom(); } 
                     else { exitRoom(); }
                 } else if (diff > 140 && isHost) { document.getElementById('cleanupWarning').style.display = 'block'; } 
                 else { document.getElementById('cleanupWarning').style.display = 'none'; }
@@ -223,6 +230,25 @@
 
         function refreshInactivity() { if(roomCode) db.ref('rooms/' + roomCode).update({ lastActive: Date.now() }); }
         function exitRoom() { sessionStorage.clear(); location.reload(); }
+
+        // Host/Player Actions
+        function deleteMyRoom() {
+            if(!roomCode || !isHost) return;
+            if(confirm("Möchtest du die Gruppe wirklich für alle löschen?")) {
+                db.ref('rooms/' + roomCode).remove().then(() => exitRoom());
+            }
+        }
+
+        function leaveRoom() {
+            if(!roomCode || isHost) return;
+            if(confirm("Möchtest du die Gruppe verlassen?")) {
+                db.ref('rooms/' + roomCode + '/players').once('value', s => {
+                    let players = s.val() || [];
+                    let newPlayers = players.filter(p => p.name !== myName);
+                    db.ref('rooms/' + roomCode).update({ players: newPlayers, lastActive: Date.now() }).then(() => exitRoom());
+                });
+            }
+        }
 
         // Admin Functions
         function openAdmin() { document.getElementById('adminModal').classList.remove('hidden'); }
@@ -309,8 +335,14 @@
             db.ref('rooms/' + roomCode).once('value', s => {
                 if(!s.exists()) return alert("Raum nicht gefunden!");
                 let p = s.val().players || [];
+                // Check if name already taken
+                if(p.some(player => player.name === myName)) {
+                    myName += Math.floor(Math.random()*10);
+                }
                 p.push({ name: myName, score: 0 });
+                isHost = false;
                 sessionStorage.setItem('activeRoom', roomCode);
+                sessionStorage.setItem('isHost', 'false');
                 sessionStorage.setItem('myName', myName);
                 db.ref('rooms/' + roomCode).update({ players: p, lastActive: Date.now() });
                 listen();
@@ -321,7 +353,13 @@
             document.getElementById('screen-home').classList.add('hidden');
             document.getElementById('screen-lobby').classList.remove('hidden');
             document.getElementById('displayRoomCode').innerText = "#" + roomCode;
-            if(isHost) document.getElementById('hostSettings').classList.remove('hidden');
+            
+            if(isHost) {
+                document.getElementById('hostSettings').classList.remove('hidden');
+                document.getElementById('hostDeleteBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('playerLeaveBtn').classList.remove('hidden');
+            }
 
             // Listener für PN vom Admin
             db.ref('rooms/' + roomCode + '/adminMsg').on('value', s => {
